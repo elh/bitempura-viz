@@ -2,7 +2,12 @@
 
 **Bitempura-viz visualizes the 2 dimensional valid time and transaction time "history" in a [Bitempura database](https://github.com/elh/bitempura).**
 
-The primary use case is to debug database states through tests. Bitempura tests write [TestOutput](https://pkg.go.dev/github.com/elh/bitempura/dbtest#TestOutput) files which contain the temporal history for relevant keys. This app must be provided those files at start up.
+The primary use case is to serve as a visual debugger for development of Bitempura. Bitempura tests write [TestOutput](https://pkg.go.dev/github.com/elh/bitempura/dbtest#TestOutput) files which contain the temporal history for relevant keys. This app must be provided those files at start up.
+
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/1035393/152779039-a01ab3d5-f482-48e9-9a49-1cb33ced4f58.png">
+    <img src="https://user-images.githubusercontent.com/1035393/152778606-6df7ba0d-6eea-4193-be4c-32c6b61ecb00.png">
+</p>
 
 ### Installation
 
