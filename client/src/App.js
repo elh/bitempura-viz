@@ -81,74 +81,65 @@ function Test(props) {
 
   let smallestValid = Number.MAX_VALUE, largestValid = 0;
   let smallestTx = Number.MAX_VALUE, largestTx = 0;
+  let validDelta = 0, txDelta = 0;
   let hasNullTxEnd = false, hasNullValidEnd = false;
 
-  // NOTE: assumes there is only 1 key
+  // TODO: handle multiple keys
+  // identify the key, compute max and min values and their delta for charting
   let key = "";
   if (Object.keys(test.Histories).length > 0) {
-    for (const [k, vs] of Object.entries(test.Histories)) {
-      // get key
-      key = k;
+    // get key
+    key = Object.keys(test.Histories)[0];
 
-      // gather max and min values to calculate delta.
-      // check if we have null end times. informs graphing bounds
-      for (const v of vs) {
-        if (v.ValidTimeStart !== null) {
-          let t = Date.parse(v.ValidTimeStart)
-          if (t < smallestValid) {
-            smallestValid = t;
-          }
-          if (t > largestValid) {
-            largestValid = t;
-          }
+    // gather max and min values to calculate delta.
+    // check if we have null end times. informs graphing bounds
+    for (const v of test.Histories[key]) {
+      if (v.ValidTimeStart !== null) {
+        let t = Date.parse(v.ValidTimeStart)
+        if (t < smallestValid) {
+          smallestValid = t;
         }
-        if (v.ValidTimeEnd !== null) {
-          let t = Date.parse(v.ValidTimeEnd)
-          if (t < smallestValid) {
-            smallestValid = t;
-          }
-          if (t > largestValid) {
-            largestValid = t;
-          }
-        } else {
-          hasNullValidEnd = true;
-        }
-        if (v.TxTimeStart !== null) {
-          let t = Date.parse(v.TxTimeStart)
-          if (t < smallestTx) {
-            smallestTx = t;
-          }
-          if (t > largestTx) {
-            largestTx = t;
-          }
-        }
-        if (v.TxTimeEnd !== null) {
-          let t = Date.parse(v.TxTimeEnd)
-          if (t < smallestTx) {
-            smallestTx = t;
-          }
-          if (t > largestTx) {
-            largestTx = t;
-          }
-        } else {
-          hasNullTxEnd = true;
+        if (t > largestValid) {
+          largestValid = t;
         }
       }
-      break;
+      if (v.ValidTimeEnd !== null) {
+        let t = Date.parse(v.ValidTimeEnd)
+        if (t < smallestValid) {
+          smallestValid = t;
+        }
+        if (t > largestValid) {
+          largestValid = t;
+        }
+      } else {
+        hasNullValidEnd = true;
+      }
+      if (v.TxTimeStart !== null) {
+        let t = Date.parse(v.TxTimeStart)
+        if (t < smallestTx) {
+          smallestTx = t;
+        }
+        if (t > largestTx) {
+          largestTx = t;
+        }
+      }
+      if (v.TxTimeEnd !== null) {
+        let t = Date.parse(v.TxTimeEnd)
+        if (t < smallestTx) {
+          smallestTx = t;
+        }
+        if (t > largestTx) {
+          largestTx = t;
+        }
+      } else {
+        hasNullTxEnd = true;
+      }
     }
+
+    // default minimum delta is 1 day
+    validDelta = Math.max(largestValid - smallestValid, _MS_PER_DAY);
+    txDelta = Math.max(largestTx - smallestTx, _MS_PER_DAY);
   }
-
-  console.log(test.Histories[key])
-
-  console.log("smallestValid", new Date(smallestValid).toLocaleString());
-  console.log("largestValid", new Date(largestValid).toLocaleString());
-  console.log("smallestTx", new Date(smallestTx).toLocaleString());
-  console.log("largestTx", new Date(largestTx).toLocaleString());
-  // default minimum delta is 1 day
-  let validDelta = Math.max(largestValid - smallestValid, _MS_PER_DAY);
-  let txDelta = Math.max(largestTx - smallestTx, _MS_PER_DAY);
-  console.log(validDelta);
-  console.log(txDelta);
 
   // list of data points in the graph. the fields in order are:
   // 0 - valid time start
@@ -160,45 +151,27 @@ function Test(props) {
   // 6 - valid end time (actual. can be null and will be displayed in tooltip)
   let echartData = [];
   if (Object.keys(test.Histories).length > 0) {
-    for (const [k, vs] of Object.entries(test.Histories)) {
-      // create data point
-      echartData = vs.map(v => {
-        let valueStr = JSON.stringify(v.Value, null, '  ')
-        return {
-          value: [
-            v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
-            v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : largestTx + txDelta,
-            v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
-            v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : largestValid + validDelta,
-            valueStr,
-            v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
-            v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
-          ],
-          itemStyle: {
-            color: stringToColour(valueStr)
-          }
+    // create data points
+    echartData = test.Histories[key].map(v => {
+      let valueStr = JSON.stringify(v.Value, null, '  ')
+      return {
+        value: [
+          v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
+          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : largestTx + txDelta,
+          v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
+          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : largestValid + validDelta,
+          valueStr,
+          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
+          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
+        ],
+        itemStyle: {
+          color: stringToColour(valueStr)
         }
-      });
-    }
+      }
+    });
   }
 
   console.log(echartData)
-
-  // TODO: remove this dummy data
-  // echartData = [
-  //   [+new Date(2011, 0, 1), +new Date(2011, 3, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'A'],
-  //   [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 3, 1), +new Date(2012, 0, 1), 'B'],
-  //   [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 0, 1), +new Date(2011, 3, 1), 'A'],
-  //   [+new Date(2011, 6, 1), +new Date(2012, 0, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'C'],
-  // ].map(function (item) {
-  //   return {
-  //     value: item,
-  //     itemStyle: {
-  //       color: stringToColour(item[4])
-  //     }
-  //   };
-  // });
-
 
   let options = {
     // title: {
@@ -218,14 +191,12 @@ function Test(props) {
       },
       min: function (value) {
         return value.min - (txDelta / 10);
-        // return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
       },
       max: function (value) {
         if (hasNullTxEnd) {
           return value.max;
         }
         return value.max + (txDelta / 10);
-        // return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
       }
     },
     yAxis: {
@@ -240,14 +211,12 @@ function Test(props) {
       },
       min: function (value) {
         return value.min - (validDelta / 10);
-        // return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
       },
       max: function (value) {
         if (hasNullValidEnd) {
           return value.max;
         }
         return value.max + (validDelta / 10);
-        // return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
       }
     },
     series: [
@@ -269,17 +238,17 @@ function Test(props) {
           };
         },
         label: {
-          show: true, // disabled. set to true to enable
+          show: false, // disabled. truncating is not working
           position: ['10', '10'],
           color: '#fff',
           overflow: 'truncate',
           width: "50px"
         },
-        dimensions: ['tx start', 'tx end', 'valid start', 'valid end', 'value', 'tx end actual', 'valid end actual'],
+        dimensions: ['tx start', 'tx end (capped)', 'valid start', 'valid end (capped)', 'value', 'tx end', 'valid end'],
         encode: {
           x: [0, 1],
           y: [2, 3],
-          tooltip: [4, 0, 1, 2, 3, 5, 6],
+          tooltip: [4, 0, 5, 2, 6],
           itemName: 4,
           label: 4,
         },
@@ -294,7 +263,7 @@ function Test(props) {
         <h3>Test: {testName}</h3>
         Key: {key}
         <div className="chart" >
-          <ReactECharts option={options} style={{ height: '100%', width: '100%', }} />
+          <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
         </div>
         <Footer></Footer>
       </header>
