@@ -7,6 +7,7 @@ import {
   useLocation,
   useParams
 } from "react-router-dom";
+import ReactECharts from 'echarts-for-react';
 import './App.css';
 
 class App extends Component {
@@ -76,10 +77,34 @@ function Test(props) {
     return <NoMatch />
   }
 
+  const options = {
+    grid: { top: 8, right: 8, bottom: 24, left: 36 },
+    xAxis: {
+      type: 'category',
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [
+      {
+        data: [820, 932, 901, 934, 1290, 1330, 1320],
+        type: 'line',
+        smooth: true,
+      },
+    ],
+    tooltip: {
+      trigger: 'axis',
+    },
+  };
+
   return (
     <div className="App" >
       <header className="App-header">
         <h3>Test: {testName}</h3>
+        <div className="chart" >
+          <ReactECharts option={options} />
+        </div>
         <Footer></Footer>
       </header>
     </div>
