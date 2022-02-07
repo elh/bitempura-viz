@@ -1,7 +1,18 @@
 {
-  "name": "client",
+  "name": "bitempura-viz-client",
   "version": "0.0.1",
+  "description": "",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elh/bitempura-viz.git"
+  },
+  "keywords": [],
+  "author": "elh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elh/bitempura-viz/issues"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
