@@ -1,0 +1,25 @@
+{
+  "name": "bitempura-viz-server",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elh/bitempura-viz.git"
+  },
+  "keywords": [],
+  "author": "elh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elh/bitempura-viz/issues"
+  },
+  "homepage": "https://github.com/elh/bitempura-viz#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "main": "server.js"
+}
