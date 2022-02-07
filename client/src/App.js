@@ -45,9 +45,14 @@ class App extends Component {
                   <div>
                     <h3>test outputs:</h3>
                     <ul>
-                      {this.state.test_outputs && this.state.test_outputs.tests.map((test) =>
-                        <li key={test.TestName}><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link></li>
-                      )}
+                      {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
+                        let keyCount = 0, versionCount = 0;
+                        for (const [key, value] of Object.entries(test.Histories)) {
+                          keyCount++;
+                          versionCount += value.length;
+                        }
+                        return <li key={test.TestName}><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</li>
+                      })}
                     </ul>
                     <Footer></Footer>
                   </div>
@@ -67,6 +72,22 @@ class App extends Component {
       </Router>
     );
   }
+}
+
+function testSummary(keyCount, versionCount) {
+  let str = "(" + keyCount.toString()
+  if (keyCount == 1) {
+    str += " key"
+  } else {
+    str += " keys"
+  }
+  str += ", " + versionCount.toString()
+  if (versionCount == 1) {
+    str += " version)"
+  } else {
+    str += " versions)"
+  }
+  return str
 }
 
 function Test(props) {
