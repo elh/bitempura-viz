@@ -3,18 +3,17 @@ import './App.css';
 
 class App extends Component {
   state = {
-    data: null
+    test_outputs: null
   };
 
   componentDidMount() {
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
+    this.fetchTestOutputs()
+      .then(res => this.setState({ test_outputs: res }))
       .catch(err => console.log(err));
   }
 
-  // fetching the GET route from the Express server which matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch('/express_backend');
+  fetchTestOutputs = async () => {
+    const response = await fetch('/test_output');
     const body = await response.json();
 
     if (response.status !== 200) {
@@ -27,16 +26,19 @@ class App extends Component {
     return (
       <div className="App" >
         <header className="App-header">
-          <p>bitempura-viz 🔍</p>
-          <ul>
-            <li>A</li>
-            <li>B long text long long long</li>
-          </ul>
-          <p className="App-intro">{this.state.data}</p>
-          <p>
-            <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a> visualization of bitempura databases<br></br>
-            <a href="https:/github.com/elh/bitempura">bitempura</a> bitemporal databases
-          </p>
+          <h1>bitempura-viz 🔍</h1>
+          <div>
+            <h3>test outputs:</h3>
+            <ul>
+              {this.state.test_outputs && this.state.test_outputs.tests.map((test) =>
+                <li key={test.TestName}>{test.TestName}</li>)
+              }
+            </ul>
+            <p>
+              <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a> visualization of bitempura databases<br></br>
+              <a href="https:/github.com/elh/bitempura">bitempura</a> bitemporal databases
+            </p>
+          </div>
         </header>
       </div>
     );

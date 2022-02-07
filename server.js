@@ -18,11 +18,11 @@ app.get('/express_backend', (req, res) => {
 });
 
 app.get('/test_output', (req, res) => {
-  let out = { files: [] };
+  let out = { tests: [] };
   var filenames = fs.readdirSync(testOutputDir);
   filenames.forEach((file, idx) => {
     let json = fs.readFileSync(testOutputDir + "/" + file);
-    out.files.push(JSON.parse(json))
+    out.tests.push(JSON.parse(json))
   });
 
   res.json(out)
