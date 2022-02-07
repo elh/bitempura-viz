@@ -189,6 +189,12 @@ function Test(props) {
       axisLine: {
         show: true,
       },
+      axisTick: {
+        show: true,
+      },
+      splitLine: {
+        show: true,
+      },
       min: function (value) {
         return value.min - (txDelta / 10);
       },
@@ -207,6 +213,12 @@ function Test(props) {
         padding: 20,
       },
       axisLine: {
+        show: true,
+      },
+      axisTick: {
+        show: true,
+      },
+      splitLine: {
         show: true,
       },
       min: function (value) {
@@ -254,7 +266,8 @@ function Test(props) {
         },
         data: echartData
       }
-    ]
+    ],
+    useUTC: true
   }
 
   return (
