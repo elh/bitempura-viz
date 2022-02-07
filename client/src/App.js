@@ -79,8 +79,9 @@ function Test(props) {
     return <NoMatch />
   }
 
-  let validDelta = 0, smallestValid = Number.MAX_VALUE, largestValid = 0;
-  let txDelta = 0, smallestTx = Number.MAX_VALUE, largestTx = 0;
+  let smallestValid = Number.MAX_VALUE, largestValid = 0;
+  let smallestTx = Number.MAX_VALUE, largestTx = 0;
+  let hasNullTxEnd = false, hasNullValidEnd = false;
 
   // NOTE: assumes there is only 1 key
   let key = "";
@@ -89,7 +90,8 @@ function Test(props) {
       // get key
       key = k;
 
-      // calculate deltas
+      // gather max and min values to calculate delta.
+      // check if we have null end times. informs graphing bounds
       for (const v of vs) {
         if (v.ValidTimeStart !== null) {
           let t = Date.parse(v.ValidTimeStart)
@@ -108,6 +110,8 @@ function Test(props) {
           if (t > largestValid) {
             largestValid = t;
           }
+        } else {
+          hasNullValidEnd = true;
         }
         if (v.TxTimeStart !== null) {
           let t = Date.parse(v.TxTimeStart)
@@ -126,14 +130,34 @@ function Test(props) {
           if (t > largestTx) {
             largestTx = t;
           }
+        } else {
+          hasNullTxEnd = true;
         }
       }
       break;
     }
   }
 
+  console.log(test.Histories[key])
+
+  console.log("smallestValid", new Date(smallestValid).toLocaleString());
+  console.log("largestValid", new Date(largestValid).toLocaleString());
+  console.log("smallestTx", new Date(smallestTx).toLocaleString());
+  console.log("largestTx", new Date(largestTx).toLocaleString());
+  // default minimum delta is 1 day
+  let validDelta = Math.max(largestValid - smallestValid, _MS_PER_DAY);
+  let txDelta = Math.max(largestTx - smallestTx, _MS_PER_DAY);
+  console.log(validDelta);
+  console.log(txDelta);
+
   // list of data points in the graph. the fields in order are:
-  // tx start time, tx end time (capped), valid start time, valid end time (capped), value,  tx end time (actual), valid end time (actual)
+  // 0 - valid time start
+  // 1 - valid time end (capped using valid delta. this simplifies charting)
+  // 2 - tx time start
+  // 3 - tx time end (capped using tx delta. this simplifies charting)
+  // 4 - value
+  // 5 - tx end time (actual. can be null and will be displayed in tooltip)
+  // 6 - valid end time (actual. can be null and will be displayed in tooltip)
   let echartData = [];
   if (Object.keys(test.Histories).length > 0) {
     for (const [k, vs] of Object.entries(test.Histories)) {
@@ -143,10 +167,12 @@ function Test(props) {
         return {
           value: [
             v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
-            v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
+            v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : largestTx + txDelta,
             v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
-            v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null,
-            valueStr
+            v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : largestValid + validDelta,
+            valueStr,
+            v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
+            v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
           ],
           itemStyle: {
             color: stringToColour(valueStr)
@@ -156,35 +182,23 @@ function Test(props) {
     }
   }
 
-
-  console.log(smallestValid);
-  console.log(largestValid);
-  console.log(smallestTx);
-  console.log(largestTx);
-  // default minimum delta is 1 day
-  validDelta = Math.max(largestValid - smallestValid, _MS_PER_DAY);
-  txDelta = Math.max(largestTx - smallestTx, _MS_PER_DAY);
-  console.log(validDelta);
-  console.log(txDelta);
-
-  console.log(_MS_PER_DAY);
+  console.log(echartData)
 
   // TODO: remove this dummy data
-  echartData = [
-    [+new Date(2011, 0, 1), +new Date(2011, 3, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'A'],
-    [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 3, 1), +new Date(2012, 0, 1), 'B'],
-    [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 0, 1), +new Date(2011, 3, 1), 'A'],
-    [+new Date(2011, 6, 1), +new Date(2012, 0, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'C'],
-  ].map(function (item) {
-    return {
-      value: item,
-      itemStyle: {
-        color: stringToColour(item[4])
-      }
-    };
-  });
+  // echartData = [
+  //   [+new Date(2011, 0, 1), +new Date(2011, 3, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'A'],
+  //   [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 3, 1), +new Date(2012, 0, 1), 'B'],
+  //   [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 0, 1), +new Date(2011, 3, 1), 'A'],
+  //   [+new Date(2011, 6, 1), +new Date(2012, 0, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'C'],
+  // ].map(function (item) {
+  //   return {
+  //     value: item,
+  //     itemStyle: {
+  //       color: stringToColour(item[4])
+  //     }
+  //   };
+  // });
 
-  console.log(echartData)
 
   let options = {
     // title: {
@@ -199,11 +213,17 @@ function Test(props) {
       nameTextStyle: {
         padding: 20,
       },
+      axisLine: {
+        show: true,
+      },
       min: function (value) {
         return value.min - (txDelta / 10);
         // return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
       },
       max: function (value) {
+        if (hasNullTxEnd) {
+          return value.max;
+        }
         return value.max + (txDelta / 10);
         // return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
       }
@@ -215,11 +235,17 @@ function Test(props) {
       nameTextStyle: {
         padding: 20,
       },
+      axisLine: {
+        show: true,
+      },
       min: function (value) {
         return value.min - (validDelta / 10);
         // return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
       },
       max: function (value) {
+        if (hasNullValidEnd) {
+          return value.max;
+        }
         return value.max + (validDelta / 10);
         // return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
       }
@@ -243,15 +269,17 @@ function Test(props) {
           };
         },
         label: {
-          show: true,
+          show: true, // disabled. set to true to enable
           position: ['10', '10'],
           color: '#fff',
+          overflow: 'truncate',
+          width: "50px"
         },
-        dimensions: ['tx start', 'tx end', 'valid start', 'valid end', 'value'],
+        dimensions: ['tx start', 'tx end', 'valid start', 'valid end', 'value', 'tx end actual', 'valid end actual'],
         encode: {
           x: [0, 1],
           y: [2, 3],
-          tooltip: [4, 0, 1, 2, 3],
+          tooltip: [4, 0, 1, 2, 3, 5, 6],
           itemName: 4,
           label: 4,
         },
