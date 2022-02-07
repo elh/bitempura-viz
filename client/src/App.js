@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -25,22 +24,19 @@ class App extends Component {
   };
 
   render() {
-    return(
-      <div className = "App" >
+    return (
+      <div className="App" >
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload. CHANGED!
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
+          <p>bitempura-viz 🔍</p>
+          <ul>
+            <li>A</li>
+            <li>B long text long long long</li>
+          </ul>
           <p className="App-intro">{this.state.data}</p>
+          <p>
+            <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a> visualization of bitempura databases<br></br>
+            <a href="https:/github.com/elh/bitempura">bitempura</a> bitemporal databases
+          </p>
         </header>
       </div>
     );
