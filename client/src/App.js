@@ -71,7 +71,7 @@ function Test(props) {
   let encodedTestName = routerParams.test;
   let testName = decodeURIComponent(encodedTestName);
 
-  let test = props.tests.find(t => t.TestName == testName)
+  let test = props.tests.find(t => t.TestName === testName)
   if (!test) {
     return <NoMatch />
   }
