@@ -10,6 +10,8 @@ import {
 import ReactECharts from 'echarts-for-react';
 import './App.css';
 
+const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+
 class App extends Component {
   state = {
     test_outputs: null
@@ -77,33 +79,125 @@ function Test(props) {
     return <NoMatch />
   }
 
-  const options = {
-    grid: { top: 8, right: 8, bottom: 24, left: 36 },
+  // NOTE: assumes there is only 1 key
+  let echartData = [];
+  let key = "";
+  if (Object.keys(test.Histories).length > 0) {
+    for (const [k, vs] of Object.entries(test.Histories)) {
+      key = k;
+      // echartData = vs.map(v => {
+      //   let valueStr = JSON.stringify(v.Value, null, '  ')
+      //   return {
+      //     value: [
+      //       v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
+      //       v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
+      //       v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
+      //       v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null,
+      //       valueStr
+      //     ],
+      //     itemStyle: {
+      //       color: stringToColour(valueStr)
+      //     }
+      //   }
+      // });
+      break;
+    }
+  }
+
+  // TODO: remove this dummy data
+  echartData = [
+    [+new Date(2011, 0, 1), +new Date(2011, 3, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'A'],
+    [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 3, 1), +new Date(2012, 0, 1), 'B'],
+    [+new Date(2011, 3, 1), +new Date(2011, 6, 1), +new Date(2011, 0, 1), +new Date(2011, 3, 1), 'A'],
+    [+new Date(2011, 6, 1), +new Date(2012, 0, 1), +new Date(2011, 0, 1), +new Date(2012, 0, 1), 'C'],
+  ].map(function (item) {
+    return {
+      value: item,
+      itemStyle: {
+        color: stringToColour(item[4])
+      }
+    };
+  });
+
+  console.log(echartData)
+
+  let options = {
+    // title: {
+    //   text:testName + '\nKey: ' + key,
+    //   left: 'center'
+    // },
+    tooltip: {},
     xAxis: {
-      type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      name: 'Tx Time',
+      type: 'time',
+      nameLocation: 'middle',
+      nameTextStyle: {
+        padding: 20,
+      },
+      min: function (value) {
+        return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
+      },
+      max: function (value) {
+        return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
+      }
     },
     yAxis: {
-      type: 'value',
+      name: 'Valid Time',
+      type: 'time',
+      nameLocation: 'middle',
+      nameTextStyle: {
+        padding: 20,
+      },
+      min: function (value) {
+        return value.min - 30 * _MS_PER_DAY; // TODO: make relative to data
+      },
+      max: function (value) {
+        return value.max + 30 * _MS_PER_DAY; // TODO: make relative to data
+      }
     },
     series: [
       {
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'line',
-        smooth: true,
-      },
-    ],
-    tooltip: {
-      trigger: 'axis',
-    },
-  };
+        type: 'custom',
+        renderItem: function (params, api) {
+          var start = api.coord([api.value(0), api.value(2)]);
+          var size = api.size([api.value(1) - api.value(0), api.value(3) - api.value(2)]);
+          var style = api.style();
+          return {
+            type: 'rect',
+            shape: {
+              x: start[0],
+              y: start[1],
+              width: size[0],
+              height: -size[1]
+            },
+            style: style
+          };
+        },
+        label: {
+          show: true,
+          position: ['10', '10'],
+          color: '#fff',
+        },
+        dimensions: ['tx start', 'tx end', 'valid start', 'valid end', 'value'],
+        encode: {
+          x: [0, 1],
+          y: [2, 3],
+          tooltip: [4, 0, 1, 2, 3],
+          itemName: 4,
+          label: 4,
+        },
+        data: echartData
+      }
+    ]
+  }
 
   return (
     <div className="App" >
       <header className="App-header">
         <h3>Test: {testName}</h3>
+        Key: {key}
         <div className="chart" >
-          <ReactECharts option={options} />
+          <ReactECharts option={options} style={{ height: '100%', width: '100%', }} />
         </div>
         <Footer></Footer>
       </header>
@@ -135,6 +229,20 @@ function NoMatch() {
       </header>
     </div>
   );
+}
+
+var stringToColour = function (str) {
+  str += "foobar" // pad strings so hash produces wider range. this is very jank.
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  var colour = '#';
+  for (var i = 0; i < 3; i++) {
+    var value = (hash >> (i * 8)) & 0xFF;
+    colour += ('00' + value.toString(16)).substr(-2);
+  }
+  return colour;
 }
 
 export default App;
