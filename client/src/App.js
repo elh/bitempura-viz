@@ -157,9 +157,9 @@ function Test(props) {
       return {
         value: [
           v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
-          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : largestTx + txDelta,
+          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : new Date(largestTx + txDelta),
           v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
-          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : largestValid + validDelta,
+          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : new Date(largestValid + validDelta),
           valueStr,
           v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
           v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
@@ -246,8 +246,8 @@ function Test(props) {
         },
         dimensions: ['tx start', 'tx end (capped)', 'valid start', 'valid end (capped)', 'value', 'tx end', 'valid end'],
         encode: {
-          x: [0, 1],
-          y: [2, 3],
+          x: [0, 1, 5],
+          y: [2, 3, 6],
           tooltip: [4, 0, 5, 2, 6],
           itemName: 4,
           label: 4,
