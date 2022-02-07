@@ -51,7 +51,10 @@ class App extends Component {
                           keyCount++;
                           versionCount += value.length;
                         }
-                        return <li key={test.TestName}><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</li>
+                        return <li key={test.TestName}>
+                          {test.Passed ? "✅ " : "❌ "}
+                          <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}
+                        </li>
                       })}
                     </ul>
                     <Footer></Footer>
@@ -74,6 +77,7 @@ class App extends Component {
   }
 }
 
+// formats some supplementary context about the test.
 function testSummary(keyCount, versionCount) {
   let str = "(" + keyCount.toString()
   if (keyCount == 1) {
@@ -90,6 +94,7 @@ function testSummary(keyCount, versionCount) {
   return str
 }
 
+// Test is the component for rendering a specific test output.
 function Test(props) {
   let routerParams = useParams();
   let encodedTestName = routerParams.test;
@@ -170,10 +175,10 @@ function Test(props) {
   // 4 - value
   // 5 - tx end time (actual. can be null and will be displayed in tooltip)
   // 6 - valid end time (actual. can be null and will be displayed in tooltip)
-  let echartData = [];
+  let echartsData = [];
   if (Object.keys(test.Histories).length > 0) {
     // create data points
-    echartData = test.Histories[key].map(v => {
+    echartsData = test.Histories[key].map(v => {
       let valueStr = JSON.stringify(v.Value, null, '  ')
       return {
         value: [
@@ -192,9 +197,8 @@ function Test(props) {
     });
   }
 
-  console.log(echartData)
-
   let options = {
+    // design this outside of echarts
     // title: {
     //   text:testName + '\nKey: ' + key,
     //   left: 'center'
@@ -285,17 +289,24 @@ function Test(props) {
           itemName: 4,
           label: 4,
         },
-        data: echartData
+        data: echartsData
       }
     ],
     useUTC: true
   }
 
+  // test context
+  let keyCount = 0, versionCount = 0;
+  for (const [key, value] of Object.entries(test.Histories)) {
+    keyCount++;
+    versionCount += value.length;
+  }
+
   return (
     <div className="App" >
       <header className="App-header">
-        <h3>Test: {testName}</h3>
-        Key: {key}
+        <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
+        Key: {key}. {testSummary(keyCount, versionCount)}
         <div className="chart" >
           <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
         </div>
@@ -305,6 +316,7 @@ function Test(props) {
   );
 }
 
+// Footer is a common navigation footer.
 function Footer() {
   return (
     <div>
@@ -317,6 +329,7 @@ function Footer() {
   )
 }
 
+// No match is a common 404 response.
 function NoMatch() {
   let location = useLocation();
   return (
@@ -331,6 +344,7 @@ function NoMatch() {
   );
 }
 
+// this hashes a value to generate a color for differeniation in the chart.
 var stringToColour = function (str) {
   str += "foobar" // pad strings so hash produces wider range. this is very jank.
   var hash = 0;
