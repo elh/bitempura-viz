@@ -41,9 +41,9 @@ class App extends Component {
             <Route exact path="/">
               <div className="App" >
                 <header className="App-header">
-                  <h1>bitempura-viz 🔍</h1>
+                  <h1>bitempura-viz 🔮</h1>
                   <div>
-                    <h3>test outputs:</h3>
+                    <h3>{this.state.test_outputs ? `test outputs (${this.state.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
                     <ul>
                       {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
                         let keyCount = 0, versionCount = 0;
@@ -57,7 +57,7 @@ class App extends Component {
                         </li>
                       })}
                     </ul>
-                    <Footer></Footer>
+                    <Footer hide_all_tests_link="true"></Footer>
                   </div>
                 </header>
               </div>
@@ -317,13 +317,13 @@ function Test(props) {
 }
 
 // Footer is a common navigation footer.
-function Footer() {
+function Footer(props) {
   return (
     <div>
       <p>
-        <Link to="/">Home</Link><br></br>
-        <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a> visualization of bitempura databases<br></br>
-        <a href="https:/github.com/elh/bitempura">bitempura</a> bitemporal databases
+        {!props.hide_all_tests_link && <span>🔙 <Link to="/">All Tests</Link><br></br></span>}
+        🔗 <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a><br></br>
+        🔗 <a href="https:/github.com/elh/bitempura">bitempura</a>
       </p>
     </div>
   )
