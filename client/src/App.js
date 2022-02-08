@@ -41,9 +41,10 @@ class App extends Component {
             <Route exact path="/">
               <div className="App" >
                 <header className="App-header">
-                  <h1>bitempura-viz 🔍</h1>
-                  <div>
-                    <h3>test outputs:</h3>
+                  <h1>bitempura-viz 🔮</h1>
+                  <div className="test-list">
+                    <h3>{this.state.test_outputs ? `test outputs (${this.state.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
+                    {this.state.test_outputs && this.state.test_outputs.test_output_dir}
                     <ul>
                       {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
                         let keyCount = 0, versionCount = 0;
@@ -57,7 +58,7 @@ class App extends Component {
                         </li>
                       })}
                     </ul>
-                    <Footer></Footer>
+                    <Footer hide_all_tests_link="true"></Footer>
                   </div>
                 </header>
               </div>
@@ -203,7 +204,21 @@ function Test(props) {
     //   text:testName + '\nKey: ' + key,
     //   left: 'center'
     // },
-    tooltip: {},
+    tooltip: {
+      show: true,
+      // enterable: true,
+      axisPointer: {
+        snap: true,
+        type: 'cross'
+      },
+      textStyle: {
+        width: '100px',
+        fontSize: '10',
+      },
+    },
+    textStyle: {
+      fontFamily: 'monospace'
+    },
     xAxis: {
       name: 'Tx Time',
       type: 'time',
@@ -317,13 +332,13 @@ function Test(props) {
 }
 
 // Footer is a common navigation footer.
-function Footer() {
+function Footer(props) {
   return (
     <div>
       <p>
-        <Link to="/">Home</Link><br></br>
-        <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a> visualization of bitempura databases<br></br>
-        <a href="https:/github.com/elh/bitempura">bitempura</a> bitemporal databases
+        {!props.hide_all_tests_link && <span>🔙 <Link to="/">All Tests</Link><br></br></span>}
+        🔗 <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a><br></br>
+        🔗 <a href="https:/github.com/elh/bitempura">bitempura</a>
       </p>
     </div>
   )

@@ -18,7 +18,10 @@ app.get('/express_backend', (req, res) => {
 });
 
 app.get('/test_output', (req, res) => {
-  let out = { tests: [] };
+  let out = {
+    tests: [],
+    test_output_dir: testOutputDir,
+  };
   var filenames = fs.readdirSync(testOutputDir);
   filenames.forEach((file, idx) => {
     let json = fs.readFileSync(testOutputDir + "/" + file);
