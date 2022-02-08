@@ -44,6 +44,7 @@ class App extends Component {
                   <h1>bitempura-viz 🔮</h1>
                   <div>
                     <h3>{this.state.test_outputs ? `test outputs (${this.state.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
+                    {this.state.test_outputs && this.state.test_outputs.test_output_dir}
                     <ul>
                       {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
                         let keyCount = 0, versionCount = 0;
@@ -203,7 +204,21 @@ function Test(props) {
     //   text:testName + '\nKey: ' + key,
     //   left: 'center'
     // },
-    tooltip: {},
+    tooltip: {
+      show: true,
+      // enterable: true,
+      axisPointer: {
+        snap: true,
+        type: 'cross'
+      },
+      textStyle: {
+        width: '100px',
+        fontSize: '10',
+      },
+    },
+    textStyle: {
+      fontFamily: 'monospace'
+    },
     xAxis: {
       name: 'Tx Time',
       type: 'time',
