@@ -13,10 +13,6 @@ const testOutputDir = process.env.TEST_OUTPUT_DIR;
 // start Express server and serve routes.
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
-app.get('/express_backend', (req, res) => {
-  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
-});
-
 app.get('/test_output', (req, res) => {
   let out = {
     tests: [],

@@ -1,8 +1,8 @@
 # bitempura-viz 🔮
 
-**Bitempura-viz visualizes the 2 dimensional valid time and transaction time "history" in a [Bitempura database](https://github.com/elh/bitempura).**
+**Bitempura-viz visualizes the 2D valid time and transaction time history in a [Bitempura database](https://github.com/elh/bitempura).**
 
-[Bitemporality](https://github.com/elh/bitempura#bitemporality) provides attractive data integrity and querying properties, but actually implementing and reasoning about it can be quite confusing. The nifty convention of visualizing the underlying records in a 2D chart was established as early as [Richard T. Snodgrass](https://en.wikipedia.org/wiki/Richard_T._Snodgrass)'s writings, but in the course of researching temporal databases, I found it to be underutilized. I created this tool to make these charts a first class artifact for building and sharing Bitempura.
+[Bitemporality](https://github.com/elh/bitempura#bitemporality) provides attractive data integrity and querying properties, but actually implementing and reasoning about it can be quite confusing. The nifty convention of visualizing the underlying records in a 2D chart was established as early as Richard T. Snodgrass's writings, but in the course of researching temporal databases, I found it to be underutilized. I created this tool to make these charts a first class artifact for building and sharing Bitempura.
 
 ## Usage
 
@@ -13,7 +13,7 @@ The primary use case is to serve as a visual debugging tool for the development 
     <img width="80%" alt="bitempura" src="https://user-images.githubusercontent.com/1035393/152917603-a2540ae5-e94d-4ea7-bda4-1f6e9dccea45.gif">
 </p>
 
-Interactive mode TBD. Hosted app TBD.
+Interactive mode TBD. Hosted app TBD. 👀
 
 ### Installation
 

@@ -48,7 +48,7 @@ class App extends Component {
                     <ul>
                       {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
                         let keyCount = 0, versionCount = 0;
-                        for (const [key, value] of Object.entries(test.Histories)) {
+                        for (const [, value] of Object.entries(test.Histories)) {
                           keyCount++;
                           versionCount += value.length;
                         }
@@ -81,13 +81,13 @@ class App extends Component {
 // formats some supplementary context about the test.
 function testSummary(keyCount, versionCount) {
   let str = "(" + keyCount.toString()
-  if (keyCount == 1) {
+  if (keyCount === 1) {
     str += " key"
   } else {
     str += " keys"
   }
   str += ", " + versionCount.toString()
-  if (versionCount == 1) {
+  if (versionCount === 1) {
     str += " version)"
   } else {
     str += " versions)"
@@ -312,7 +312,7 @@ function Test(props) {
 
   // test context
   let keyCount = 0, versionCount = 0;
-  for (const [key, value] of Object.entries(test.Histories)) {
+  for (const [, value] of Object.entries(test.Histories)) {
     keyCount++;
     versionCount += value.length;
   }
@@ -367,7 +367,7 @@ var stringToColour = function (str) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   var colour = '#';
-  for (var i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     var value = (hash >> (i * 8)) & 0xFF;
     colour += ('00' + value.toString(16)).substr(-2);
   }
