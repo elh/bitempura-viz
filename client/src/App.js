@@ -42,7 +42,7 @@ class App extends Component {
               <div className="App" >
                 <header className="App-header">
                   <h1>bitempura-viz 🔮</h1>
-                  <div>
+                  <div className="test-list">
                     <h3>{this.state.test_outputs ? `test outputs (${this.state.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
                     {this.state.test_outputs && this.state.test_outputs.test_output_dir}
                     <ul>
