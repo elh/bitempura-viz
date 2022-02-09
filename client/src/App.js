@@ -233,7 +233,7 @@ function Chart(props) {
           v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
         ],
         itemStyle: {
-          color: stringToColour(valueStr)
+          // color: stringToColour(valueStr)
         }
       }
     });
@@ -345,6 +345,7 @@ function Chart(props) {
           itemName: 4,
           label: 4,
         },
+        colorBy: 'data',
         data: echartsData
       }
     ],
