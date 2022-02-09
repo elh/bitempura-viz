@@ -1,0 +1,112 @@
+{
+    "HistoryHistories": [
+        {
+            "user-1": [
+                {
+                    "Id": "1",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 100,
+                        "description": "Deposit"
+                    },
+                    "TxTimeStart": "2021-03-14T00:00:00Z",
+                    "TxTimeEnd": null,
+                    "ValidTimeStart": "2021-03-14T00:00:00Z",
+                    "ValidTimeEnd": null
+                }
+            ]
+        },
+        {
+            "user-1": [
+                {
+                    "Id": "3",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 75,
+                        "description": "Stock Purchase"
+                    },
+                    "TxTimeStart": "2021-03-20T00:00:00Z",
+                    "TxTimeEnd": null,
+                    "ValidTimeStart": "2021-03-20T00:00:00Z",
+                    "ValidTimeEnd": null
+                },
+                {
+                    "Id": "2",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 100,
+                        "description": "Deposit"
+                    },
+                    "TxTimeStart": "2021-03-20T00:00:00Z",
+                    "TxTimeEnd": null,
+                    "ValidTimeStart": "2021-03-14T00:00:00Z",
+                    "ValidTimeEnd": "2021-03-20T00:00:00Z"
+                },
+                {
+                    "Id": "1",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 100,
+                        "description": "Deposit"
+                    },
+                    "TxTimeStart": "2021-03-14T00:00:00Z",
+                    "TxTimeEnd": "2021-03-20T00:00:00Z",
+                    "ValidTimeStart": "2021-03-14T00:00:00Z",
+                    "ValidTimeEnd": null
+                }
+            ]
+        },
+        {
+            "user-1": [
+                {
+                    "Id": "4",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 90,
+                        "description": "Price Improvement"
+                    },
+                    "TxTimeStart": "2021-03-21T00:00:00Z",
+                    "TxTimeEnd": null,
+                    "ValidTimeStart": "2021-03-20T00:00:00Z",
+                    "ValidTimeEnd": null
+                },
+                {
+                    "Id": "3",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 75,
+                        "description": "Stock Purchase"
+                    },
+                    "TxTimeStart": "2021-03-20T00:00:00Z",
+                    "TxTimeEnd": "2021-03-21T00:00:00Z",
+                    "ValidTimeStart": "2021-03-20T00:00:00Z",
+                    "ValidTimeEnd": null
+                },
+                {
+                    "Id": "2",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 100,
+                        "description": "Deposit"
+                    },
+                    "TxTimeStart": "2021-03-20T00:00:00Z",
+                    "TxTimeEnd": null,
+                    "ValidTimeStart": "2021-03-14T00:00:00Z",
+                    "ValidTimeEnd": "2021-03-20T00:00:00Z"
+                },
+                {
+                    "Id": "1",
+                    "Key": "user-1",
+                    "Value": {
+                        "cash-balance": 100,
+                        "description": "Deposit"
+                    },
+                    "TxTimeStart": "2021-03-14T00:00:00Z",
+                    "TxTimeEnd": "2021-03-20T00:00:00Z",
+                    "ValidTimeStart": "2021-03-14T00:00:00Z",
+                    "ValidTimeEnd": null
+                }
+            ]
+        }
+    ]
+}
