@@ -12,6 +12,7 @@ import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
+// App is the root component which handles multiple url routes and pages.
 class App extends Component {
   state = {
     test_outputs: null
@@ -41,25 +42,7 @@ class App extends Component {
             <Route exact path="/">
               <div className="App" >
                 <header className="App-header">
-                  <h1>bitempura-viz 🔮</h1>
-                  <div className="test-list">
-                    <h3>{this.state.test_outputs ? `test outputs (${this.state.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
-                    {this.state.test_outputs && this.state.test_outputs.test_output_dir}
-                    <ul>
-                      {this.state.test_outputs && this.state.test_outputs.tests.map((test) => {
-                        let keyCount = 0, versionCount = 0;
-                        for (const [, value] of Object.entries(test.Histories)) {
-                          keyCount++;
-                          versionCount += value.length;
-                        }
-                        return <li key={test.TestName}>
-                          {test.Passed ? "✅ " : "❌ "}
-                          <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}
-                        </li>
-                      })}
-                    </ul>
-                    <Footer hide_all_tests_link="true"></Footer>
-                  </div>
+                  <TestList test_outputs={this.state.test_outputs}></TestList>
                 </header>
               </div>
             </Route>
@@ -76,6 +59,34 @@ class App extends Component {
       </Router>
     );
   }
+}
+
+// Test is the component for rendering the list of all provided tests.
+// props.test_outputs: API response w/ all provided tests and the name of the test dir
+function TestList(props) {
+  return (
+    <div className="test-list">
+      <h1>bitempura-viz 🔮</h1>
+      <div>
+        <h3>{props.test_outputs ? `test outputs (${props.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
+        {props.test_outputs && props.test_outputs.test_output_dir}
+        <ul>
+          {props.test_outputs && props.test_outputs.tests.map((test) => {
+            let keyCount = 0, versionCount = 0;
+            for (const [, value] of Object.entries(test.Histories)) {
+              keyCount++;
+              versionCount += value.length;
+            }
+            return <li key={test.TestName}>
+              {test.Passed ? "✅ " : "❌ "}
+              <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}
+            </li>
+          })}
+        </ul>
+        <Footer hide_all_tests_link="true"></Footer>
+      </div>
+    </div>
+  )
 }
 
 // formats some supplementary context about the test.
@@ -96,31 +107,61 @@ function testSummary(keyCount, versionCount) {
 }
 
 // Test is the component for rendering a specific test output.
+// props.tests: the list of all provided tests
 function Test(props) {
   let routerParams = useParams();
   let encodedTestName = routerParams.test;
   let testName = decodeURIComponent(encodedTestName);
 
+  // react-router-dom doesn't make it easy to take just the specific test from the url route as a prop
   let test = props.tests.find(t => t.TestName === testName)
   if (!test) {
     return <NoMatch />
   }
 
+  // test context
+  let keyCount = 0, versionCount = 0;
+  for (const [, value] of Object.entries(test.Histories)) {
+    keyCount++;
+    versionCount += value.length;
+  }
+
+  // NOTE: right now, this only ever renders the first key. TODO: handle multiple keys
+  // this is a big assumption about the behavior of Chart component. revisit if we actually support multiple keys.
+  let key = Object.keys(test.Histories).length > 0 ? Object.keys(test.Histories)[0] : "";
+
+  return (
+    <div className="App" >
+      <header className="App-header">
+        <div className="test">
+          <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
+          Key: {key}. {testSummary(keyCount, versionCount)}
+          <Chart histories={test.Histories}></Chart>
+          <Footer></Footer>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+// Chart is the core component that actually renders the temporal chart.
+// props.histories: list of VersionedKV for a single key
+// NOTE: right now, this only ever renders the first key. TODO: handle multiple keys
+function Chart(props) {
   let smallestValid = Number.MAX_VALUE, largestValid = 0;
   let smallestTx = Number.MAX_VALUE, largestTx = 0;
   let validDelta = 0, txDelta = 0;
   let hasNullTxEnd = false, hasNullValidEnd = false;
 
-  // TODO: handle multiple keys
   // identify the key, compute max and min values and their delta for charting
   let key = "";
-  if (Object.keys(test.Histories).length > 0) {
+  if (Object.keys(props.histories).length > 0) {
     // get key
-    key = Object.keys(test.Histories)[0];
+    key = Object.keys(props.histories)[0];
 
     // gather max and min values to calculate delta.
     // check if we have null end times. informs graphing bounds
-    for (const v of test.Histories[key]) {
+    for (const v of props.histories[key]) {
       if (v.ValidTimeStart !== null) {
         let t = Date.parse(v.ValidTimeStart)
         if (t < smallestValid) {
@@ -177,9 +218,9 @@ function Test(props) {
   // 5 - tx end time (actual. can be null and will be displayed in tooltip)
   // 6 - valid end time (actual. can be null and will be displayed in tooltip)
   let echartsData = [];
-  if (Object.keys(test.Histories).length > 0) {
+  if (Object.keys(props.histories).length > 0) {
     // create data points
-    echartsData = test.Histories[key].map(v => {
+    echartsData = props.histories[key].map(v => {
       let valueStr = JSON.stringify(v.Value, null, '  ')
       return {
         value: [
@@ -310,28 +351,15 @@ function Test(props) {
     useUTC: true
   }
 
-  // test context
-  let keyCount = 0, versionCount = 0;
-  for (const [, value] of Object.entries(test.Histories)) {
-    keyCount++;
-    versionCount += value.length;
-  }
-
   return (
-    <div className="App" >
-      <header className="App-header">
-        <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-        Key: {key}. {testSummary(keyCount, versionCount)}
-        <div className="chart" >
-          <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
-        </div>
-        <Footer></Footer>
-      </header>
+    <div className="chart" >
+      <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 }
 
-// Footer is a common navigation footer.
+// Footer is a common navigation footer component.
+// props.hide_all_tests_link is true is we should hide the back link to the TestList page.
 function Footer(props) {
   return (
     <div>
@@ -344,7 +372,7 @@ function Footer(props) {
   )
 }
 
-// No match is a common 404 response.
+// NoMatch is a 404 page component.
 function NoMatch() {
   let location = useLocation();
   return (

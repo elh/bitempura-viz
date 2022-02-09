@@ -16,5 +16,11 @@
 }
 
 .test-list {
+  width: 100%;
+  max-width: 90%;
+}
+
+.test {
+  width: 100%;
   max-width: 90%;
 }
