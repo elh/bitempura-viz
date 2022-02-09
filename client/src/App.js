@@ -61,7 +61,7 @@ class App extends Component {
   }
 }
 
-// Test is the component for rendering the list of all provided tests.
+// TestList is the component for rendering the list of all provided tests.
 // props.test_outputs: API response w/ all provided tests and the name of the test dir
 function TestList(props) {
   return (
