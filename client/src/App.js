@@ -57,7 +57,7 @@ class App extends Component {
             }
             {/* chart replay demo */}
             <Route exact path="/replay_demo">
-              <ChartReplay></ChartReplay>
+              <Replay></Replay>
             </Route>
             {/* 404 */}
             <Route path="*">
@@ -88,7 +88,10 @@ function TestList(props) {
             }
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
-              <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}
+              { test.TestName === "TestRobinhoodExample"
+                ? <span>⭐ <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)} 👉 <Link to="/replay_demo">Replay Demo</Link></span>
+                : <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              }
             </li>
           })}
         </ul>
@@ -146,6 +149,22 @@ function Test(props) {
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
           Key: {key}. {testSummary(keyCount, versionCount)}
           <Chart histories={test.Histories}></Chart>
+          <Footer></Footer>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+// Replay is a page deoming our responsive chart feature
+function Replay() {
+  // pull history-history from hardcoded file
+  return (
+    <div className="App" >
+      <header className="App-header">
+        <div className="test">
+          <h3>Replay of the Robinhood Example</h3>
+          <ChartReplay historyHistories={replayHistory.HistoryHistories}></ChartReplay>
           <Footer></Footer>
         </div>
       </header>
@@ -375,18 +394,19 @@ function updateOptionWithHistories(option, histories) {
 }
 
 // ChartReplay is a varition of Chart that is responsive and replays a history-history for a database.
-function ChartReplay() {
-  const maxIdx = replayHistory.HistoryHistories.length;
+// props.historyHistories to render.
+function ChartReplay(props) {
+  const maxIdx = props.historyHistories.length;
 
   const [state, setState] = useState({
     idx: 0,
-    option: updateOptionWithHistories(BASE_OPTION, replayHistory.HistoryHistories[0])
+    option: updateOptionWithHistories(BASE_OPTION, props.historyHistories[0])
   });
 
   function next() {
     let curState = state;
     let nextIdx = curState.idx + 1;
-    let newOption = updateOptionWithHistories(BASE_OPTION, replayHistory.HistoryHistories[nextIdx])
+    let newOption = updateOptionWithHistories(BASE_OPTION, props.historyHistories[nextIdx])
     setState({
       idx: nextIdx,
       option: newOption,
