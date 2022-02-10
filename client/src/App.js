@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -8,6 +8,8 @@ import {
   useParams
 } from "react-router-dom";
 import ReactECharts from 'echarts-for-react';
+import cloneDeep from 'lodash.clonedeep';
+import replayHistory from "./replay_history.json";
 import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -39,6 +41,7 @@ class App extends Component {
       <Router>
         <div>
           <Switch>
+            {/* home page */}
             <Route exact path="/">
               <div className="App" >
                 <header className="App-header">
@@ -46,11 +49,17 @@ class App extends Component {
                 </header>
               </div>
             </Route>
+            {/* test page */}
             {this.state.test_outputs &&
               <Route path="/tests/:test" children={
                 <Test tests={this.state.test_outputs.tests || []} />
               } />
             }
+            {/* chart replay demo */}
+            <Route exact path="/replay_demo">
+              <Replay></Replay>
+            </Route>
+            {/* 404 */}
             <Route path="*">
               <NoMatch />
             </Route>
@@ -79,7 +88,10 @@ function TestList(props) {
             }
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
-              <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}
+              { test.TestName === "TestRobinhoodExample"
+                ? <span>⭐ <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)} 👉 <Link to="/replay_demo">Replay Demo</Link></span>
+                : <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              }
             </li>
           })}
         </ul>
@@ -126,7 +138,7 @@ function Test(props) {
     versionCount += value.length;
   }
 
-  // NOTE: right now, this only ever renders the first key. TODO: handle multiple keys
+  // NOTE: right now, this only ever renders the first key.
   // this is a big assumption about the behavior of Chart component. revisit if we actually support multiple keys.
   let key = Object.keys(test.Histories).length > 0 ? Object.keys(test.Histories)[0] : "";
 
@@ -144,10 +156,122 @@ function Test(props) {
   );
 }
 
-// Chart is the core component that actually renders the temporal chart.
-// props.histories: list of VersionedKV for a single key
-// NOTE: right now, this only ever renders the first key. TODO: handle multiple keys
-function Chart(props) {
+// Replay is a page deoming our responsive chart feature
+function Replay() {
+  // pull history-history from hardcoded file
+  return (
+    <div className="App" >
+      <header className="App-header">
+        <div className="test">
+          <h3>Replay of the Robinhood Example</h3>
+          <ChartReplay historyHistories={replayHistory.HistoryHistories}></ChartReplay>
+          <Footer></Footer>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+// BASE_OPTION are the common unchanging options for all our echart configs.
+// Chart components will set xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
+// NOTE: right now, this only ever renders the first key. this assumes there is always only 1 "series"
+const BASE_OPTION = {
+  tooltip: {
+    show: true,
+    axisPointer: {
+      snap: true,
+      type: 'cross'
+    },
+    textStyle: {
+      width: '100px',
+      fontSize: '10',
+    },
+  },
+  textStyle: {
+    fontFamily: 'monospace'
+  },
+  xAxis: {
+    name: 'Tx Time',
+    type: 'time',
+    nameLocation: 'middle',
+    nameTextStyle: {
+      padding: 20,
+    },
+    axisLine: {
+      show: true,
+    },
+    axisTick: {
+      show: true,
+    },
+    splitLine: {
+      show: true,
+    },
+  },
+  yAxis: {
+    name: 'Valid Time',
+    type: 'time',
+    nameLocation: 'middle',
+    nameTextStyle: {
+      padding: 20,
+    },
+    axisLine: {
+      show: true,
+    },
+    axisTick: {
+      show: true,
+    },
+    splitLine: {
+      show: true,
+    },
+  },
+  series: [
+    {
+      type: 'custom',
+      renderItem: function (params, api) {
+        var start = api.coord([api.value(0), api.value(2)]);
+        var size = api.size([api.value(1) - api.value(0), api.value(3) - api.value(2)]);
+        var style = api.style();
+        return {
+          type: 'rect',
+          shape: {
+            x: start[0],
+            y: start[1],
+            width: size[0],
+            height: -size[1]
+          },
+          style: style
+        };
+      },
+      label: {
+        show: false, // disabled. truncating is not working
+        position: ['10', '10'],
+        color: '#fff',
+        overflow: 'truncate',
+        width: "50px"
+      },
+      dimensions: ['tx start', 'tx end (capped)', 'valid start', 'valid end (capped)', 'value', 'tx end', 'valid end', 'id'],
+      encode: {
+        x: [0, 1, 5],
+        y: [2, 3, 6],
+        tooltip: [4, 0, 5, 2, 6],
+        itemName: 4,
+        itemId: 7, // optional 8th element which is an id for the record. useful for animating/debugging history-histories
+        label: 4,
+      },
+      animationEasing: 'elasticOut',
+      universalTransition: {
+        enabled: true
+      }
+    }
+  ],
+  useUTC: true
+}
+
+// return a new option object by updating option arg with histories. does not mutate option arg
+// Will return an option updating xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
+// NOTE: right now, this only ever renders the first key.
+function updateOptionWithHistories(option, histories) {
+  // compute these values that will inform axes min and max
   let smallestValid = Number.MAX_VALUE, largestValid = 0;
   let smallestTx = Number.MAX_VALUE, largestTx = 0;
   let validDelta = 0, txDelta = 0;
@@ -155,13 +279,13 @@ function Chart(props) {
 
   // identify the key, compute max and min values and their delta for charting
   let key = "";
-  if (Object.keys(props.histories).length > 0) {
+  if (Object.keys(histories).length > 0) {
     // get key
-    key = Object.keys(props.histories)[0];
+    key = Object.keys(histories)[0];
 
     // gather max and min values to calculate delta.
     // check if we have null end times. informs graphing bounds
-    for (const v of props.histories[key]) {
+    for (const v of histories[key]) {
       if (v.ValidTimeStart !== null) {
         let t = Date.parse(v.ValidTimeStart)
         if (t < smallestValid) {
@@ -205,8 +329,8 @@ function Chart(props) {
     }
 
     // default minimum delta is 1 day
-    validDelta = Math.max(largestValid - smallestValid, _MS_PER_DAY);
-    txDelta = Math.max(largestTx - smallestTx, _MS_PER_DAY);
+    validDelta = Math.max(largestValid - smallestValid, 7 * _MS_PER_DAY);
+    txDelta = Math.max(largestTx - smallestTx, 7 * _MS_PER_DAY);
   }
 
   // list of data points in the graph. the fields in order are:
@@ -217,21 +341,26 @@ function Chart(props) {
   // 4 - value
   // 5 - tx end time (actual. can be null and will be displayed in tooltip)
   // 6 - valid end time (actual. can be null and will be displayed in tooltip)
+  // 7 - an id for the underlying bitemporal record. useful for animating/debugging history-histories (optional)
   let echartsData = [];
-  if (Object.keys(props.histories).length > 0) {
+  if (Object.keys(histories).length > 0) {
     // create data points
-    echartsData = props.histories[key].map(v => {
+    echartsData = histories[key].map(v => {
       let valueStr = JSON.stringify(v.Value, null, '  ')
+      let value = [
+        v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
+        v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : new Date(largestTx + txDelta),
+        v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
+        v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : new Date(largestValid + validDelta),
+        valueStr,
+        v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
+        v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
+      ]
+      if (v.Id) {
+        value.push(v.Id);
+      }
       return {
-        value: [
-          v.TxTimeStart !== null ? Date.parse(v.TxTimeStart) : null,
-          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : new Date(largestTx + txDelta),
-          v.ValidTimeStart !== null ? Date.parse(v.ValidTimeStart) : null,
-          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : new Date(largestValid + validDelta),
-          valueStr,
-          v.TxTimeEnd !== null ? Date.parse(v.TxTimeEnd) : null,
-          v.ValidTimeEnd !== null ? Date.parse(v.ValidTimeEnd) : null
-        ],
+        value: value,
         itemStyle: {
           color: stringToColour(valueStr)
         }
@@ -239,121 +368,76 @@ function Chart(props) {
     });
   }
 
-  let options = {
-    // design this outside of echarts
-    // title: {
-    //   text:testName + '\nKey: ' + key,
-    //   left: 'center'
-    // },
-    tooltip: {
-      show: true,
-      // enterable: true,
-      axisPointer: {
-        snap: true,
-        type: 'cross'
-      },
-      textStyle: {
-        width: '100px',
-        fontSize: '10',
-      },
-    },
-    textStyle: {
-      fontFamily: 'monospace'
-    },
-    xAxis: {
-      name: 'Tx Time',
-      type: 'time',
-      nameLocation: 'middle',
-      nameTextStyle: {
-        padding: 20,
-      },
-      axisLine: {
-        show: true,
-      },
-      axisTick: {
-        show: true,
-      },
-      splitLine: {
-        show: true,
-      },
-      min: function (value) {
-        return value.min - (txDelta / 10);
-      },
-      max: function (value) {
-        if (hasNullTxEnd) {
-          return value.max;
-        }
-        return value.max + (txDelta / 10);
-      }
-    },
-    yAxis: {
-      name: 'Valid Time',
-      type: 'time',
-      nameLocation: 'middle',
-      nameTextStyle: {
-        padding: 20,
-      },
-      axisLine: {
-        show: true,
-      },
-      axisTick: {
-        show: true,
-      },
-      splitLine: {
-        show: true,
-      },
-      min: function (value) {
-        return value.min - (validDelta / 10);
-      },
-      max: function (value) {
-        if (hasNullValidEnd) {
-          return value.max;
-        }
-        return value.max + (validDelta / 10);
-      }
-    },
-    series: [
-      {
-        type: 'custom',
-        renderItem: function (params, api) {
-          var start = api.coord([api.value(0), api.value(2)]);
-          var size = api.size([api.value(1) - api.value(0), api.value(3) - api.value(2)]);
-          var style = api.style();
-          return {
-            type: 'rect',
-            shape: {
-              x: start[0],
-              y: start[1],
-              width: size[0],
-              height: -size[1]
-            },
-            style: style
-          };
-        },
-        label: {
-          show: false, // disabled. truncating is not working
-          position: ['10', '10'],
-          color: '#fff',
-          overflow: 'truncate',
-          width: "50px"
-        },
-        dimensions: ['tx start', 'tx end (capped)', 'valid start', 'valid end (capped)', 'value', 'tx end', 'valid end'],
-        encode: {
-          x: [0, 1, 5],
-          y: [2, 3, 6],
-          tooltip: [4, 0, 5, 2, 6],
-          itemName: 4,
-          label: 4,
-        },
-        data: echartsData
-      }
-    ],
-    useUTC: true
+  // actually update and return a new option
+  const newOption = cloneDeep(option); // immutable
+  newOption.xAxis.min = function (value) {
+    return value.min - (txDelta / 10);
   }
+  newOption.xAxis.max = function (value) {
+    if (hasNullTxEnd) {
+      return value.max;
+    }
+    return value.max + (txDelta / 10);
+  }
+  newOption.yAxis.min = function (value) {
+    return value.min - (validDelta / 10);
+  }
+  newOption.yAxis.max = function (value) {
+    if (hasNullValidEnd) {
+      return value.max;
+    }
+    return value.max + (validDelta / 10);
+  }
+  newOption.series[0].data = echartsData;
+
+  return newOption;
+}
+
+// ChartReplay is a varition of Chart that is responsive and replays a history-history for a database.
+// props.historyHistories to render.
+function ChartReplay(props) {
+  const maxIdx = props.historyHistories.length;
+
+  const [state, setState] = useState({
+    idx: 0,
+    option: updateOptionWithHistories(BASE_OPTION, props.historyHistories[0])
+  });
+
+  function next() {
+    let curState = state;
+    let nextIdx = curState.idx + 1;
+    let newOption = updateOptionWithHistories(BASE_OPTION, props.historyHistories[nextIdx])
+    setState({
+      idx: nextIdx,
+      option: newOption,
+    });
+  }
+
+  useEffect(() => {
+    if (state.idx + 1 >= maxIdx) {
+      return
+    }
+    const timer = setInterval(() => {
+      next();
+    }, 1500);
+    return () => clearInterval(timer);
+  });
 
   return (
     <div className="chart" >
-      <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
+      <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
+    </div>
+  );
+}
+
+// Chart is the core component that actually renders the temporal chart.
+// props.histories: list of VersionedKV for a single key
+// NOTE: right now, this only ever renders the first key.
+function Chart(props) {
+  let option = updateOptionWithHistories(BASE_OPTION, props.histories);
+  return (
+    <div className="chart" >
+      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 }
