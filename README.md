@@ -18,7 +18,7 @@ Interactive mode TBD. Hosted app TBD. 👀
 ### Installation
 
 ```
-(cd server && npm ci) && (cd client && npm ci)
+make install
 ````
 
 ### Running Locally
@@ -27,15 +27,16 @@ Bitempura-viz has a simple client-server set up. The server makes temporal histo
 
 1. Start the Express server w/ `TEST_OUTPUT_DIR` env var set to a path to a Bitempura `_testoutput/` dir to visualize.
 ```
-(cd server; TEST_OUTPUT_DIR=<path to `_testoutput/`> node server.js)
-# or
-# (cd server; TEST_OUTPUT_DIR=<path to `_testoutput/`> npx nodemon server.js)
+make run-server
+# or `make run-server-nodemon`
 ```
 
 2. Start the React web app. Navigate to it at `http://localhost:3000/`.
 ```
-(cd client; npm start)
+make run-client
 ````
+
+See `Makefile` for more context.
 
 ### Enhancements?
 
