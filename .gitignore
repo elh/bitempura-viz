@@ -1,3 +1,6 @@
+# Bitempura repo. used for building wasm artifacts
+.bitempura
+
 # Logs
 logs
 *.log
