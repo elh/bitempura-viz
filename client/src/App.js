@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import ReactECharts from 'echarts-for-react';
 import cloneDeep from 'lodash.clonedeep';
-import replayHistory from "./replay_history.json";
 import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -180,11 +179,8 @@ function Replay(props) {
   // this is a big assumption about the behavior of Chart component. revisit if we actually support multiple keys.
   let key = Object.keys(test.Histories).length > 0 ? Object.keys(test.Histories)[0] : "";
 
-  // pull history-history from hardcoded file
-  // TODO: build history-history from the test
-  // TODO: remove the `replayHistory.HistoriesHistory`
+  // build histories history from the test
   const historiesHistory = buildHistoriesHistory(test.Histories)
-  console.log(historiesHistory)
 
   return (
     <div className="App" >
@@ -201,11 +197,17 @@ function Replay(props) {
 }
 
 // given a final history, return back a representation of the history as it was at every tx start and tx end time.
-// TODO: reconsider the way this is grouped. not sure if this makes sense across all keys
-// TODO: this is being called with only 1 key and 1 key's history right now
-// TODO: generate with the stable ids
 function buildHistoriesHistory(histories) {
-  let historiesHistory = [histories] // an array of histories (objects where db keys are keys and list of versioned kvs are values)
+  // assign ids to each versioend kv so that there is a stable id for considering change over time (for animations)
+  const historiesWithKVIds = cloneDeep(histories);
+  let idx = 0
+  for (const [, kvs] of Object.entries(histories)) {
+    for (const v of kvs) {
+      v.Id = idx
+      idx++
+    }
+  }
+  let historiesHistory = [historiesWithKVIds] // an array of histories (objects where db keys are keys and list of versioned kvs are values)
 
   while (true) {
     let latestTxTime = getLatestNonNullTxTime(historiesHistory[0])
@@ -234,7 +236,6 @@ function buildHistoriesHistory(histories) {
     if (count == 0) {
       break
     }
-
 
     historiesHistory.unshift(prevHistories);
   }
