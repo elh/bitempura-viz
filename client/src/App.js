@@ -187,7 +187,7 @@ function Replay(props) {
     <div className="App" >
       <header className="App-header">
         <div className="test">
-          <h3>⏳ Replay: {testName}</h3>
+          <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
           {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
           Key: {key}. {testSummary(keyCount, versionCount)}. {/* <Link to={"/tests/" + encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link> */}
           <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
