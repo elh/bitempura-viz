@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import ReactECharts from 'echarts-for-react';
 import cloneDeep from 'lodash.clonedeep';
-import replayHistory from "./replay_history.json";
 import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -55,10 +54,12 @@ class App extends Component {
                 <Test tests={this.state.test_outputs.tests || []} />
               } />
             }
-            {/* chart replay demo */}
-            <Route exact path="/replay_demo">
-              <Replay></Replay>
-            </Route>
+            {/* test replay page */}
+            {this.state.test_outputs &&
+              <Route path="/replays/:test" children={
+                <Replay tests={this.state.test_outputs.tests || []} />
+              } />
+            }
             {/* 404 */}
             <Route path="*">
               <NoMatch />
@@ -88,9 +89,8 @@ function TestList(props) {
             }
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
-              { test.TestName === "TestRobinhoodExample"
-                ? <span>⭐ <Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)} 👉 <Link to="/replay_demo">Replay Demo</Link></span>
-                : <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
+              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
               }
             </li>
           })}
@@ -147,7 +147,7 @@ function Test(props) {
       <header className="App-header">
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}
+          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/replays/"+encodedTestName}>⏳ Replay it</Link>
           <Chart histories={test.Histories}></Chart>
           <Footer></Footer>
         </div>
@@ -157,19 +157,114 @@ function Test(props) {
 }
 
 // Replay is a page deoming our responsive chart feature
-function Replay() {
-  // pull history-history from hardcoded file
+function Replay(props) {
+  let routerParams = useParams();
+  let encodedTestName = routerParams.test;
+  let testName = decodeURIComponent(encodedTestName);
+
+  // react-router-dom doesn't make it easy to take just the specific test from the url route as a prop
+  let test = props.tests.find(t => t.TestName === testName)
+  if (!test) {
+    return <NoMatch />
+  }
+
+  // test context
+  let keyCount = 0, versionCount = 0;
+  for (const [, value] of Object.entries(test.Histories)) {
+    keyCount++;
+    versionCount += value.length;
+  }
+
+  // NOTE: right now, this only ever renders the first key.
+  // this is a big assumption about the behavior of Chart component. revisit if we actually support multiple keys.
+  let key = Object.keys(test.Histories).length > 0 ? Object.keys(test.Histories)[0] : "";
+
+  // build histories history from the test
+  const historiesHistory = buildHistoriesHistory(test.Histories)
+
   return (
     <div className="App" >
       <header className="App-header">
         <div className="test">
-          <h3>Replay of the Robinhood Example</h3>
-          <ChartReplay historyHistories={replayHistory.HistoryHistories}></ChartReplay>
+          <h3>⏳ Replay: {testName}</h3>
+          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/tests/"+encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link>
+          <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
           <Footer></Footer>
         </div>
       </header>
     </div>
   );
+}
+
+// given a final history, return back a representation of the history as it was at every tx start and tx end time.
+function buildHistoriesHistory(histories) {
+  // assign ids to each versioend kv so that there is a stable id for considering change over time (for animations)
+  const historiesWithKVIds = cloneDeep(histories);
+  let idx = 0
+  for (const [, kvs] of Object.entries(histories)) {
+    for (const v of kvs) {
+      v.Id = idx
+      idx++
+    }
+  }
+  let historiesHistory = [historiesWithKVIds] // an array of histories (objects where db keys are keys and list of versioned kvs are values)
+
+  while (true) {
+    let latestTxTime = getLatestNonNullTxTime(historiesHistory[0])
+    if (latestTxTime == null) {
+      break
+    }
+    const prevHistories = cloneDeep(historiesHistory[0]);
+    for (const [, kvs] of Object.entries(prevHistories)) {
+      // stupid trick to iterate list backwards to not break indices when deleting elements during iteration
+      for (var i = kvs.length - 1; i >= 0; i--) {
+        let v = kvs[i]
+        if (v.TxTimeEnd !== null && Date.parse(v.TxTimeEnd) == latestTxTime) {
+          v.TxTimeEnd = null;
+        }
+        if (v.TxTimeStart !== null && Date.parse(v.TxTimeStart) == latestTxTime) {
+          kvs.splice(i, 1);
+        }
+      }
+    }
+
+    // don't add a set of histories where there are no records at all
+    let count = 0
+    for (const [, kvs] of Object.entries(prevHistories)) {
+      count += kvs.length
+    }
+    if (count == 0) {
+      break
+    }
+
+    historiesHistory.unshift(prevHistories);
+  }
+
+  return historiesHistory
+}
+
+
+function getLatestNonNullTxTime(histories) {
+  let latest = null
+  for (const [, kvs] of Object.entries(histories)) {
+    for (const v of kvs) {
+      if (v.TxTimeStart !== null) {
+        let t = Date.parse(v.TxTimeStart)
+        console.log(t)
+        if (latest == null || t > latest) {
+          latest = t
+        }
+      }
+      if (v.TxTimeEnd !== null) {
+        let t = Date.parse(v.TxTimeEnd)
+        console.log(t)
+        if (latest == null || t > latest) {
+          latest = t
+        }
+      }
+    }
+  }
+  return latest
 }
 
 // BASE_OPTION are the common unchanging options for all our echart configs.
@@ -394,19 +489,19 @@ function updateOptionWithHistories(option, histories) {
 }
 
 // ChartReplay is a varition of Chart that is responsive and replays a history-history for a database.
-// props.historyHistories to render.
+// props.historiesHistory to render.
 function ChartReplay(props) {
-  const maxIdx = props.historyHistories.length;
+  const maxIdx = props.historiesHistory.length;
 
   const [state, setState] = useState({
     idx: 0,
-    option: updateOptionWithHistories(BASE_OPTION, props.historyHistories[0])
+    option: props.historiesHistory.length > 0 ? updateOptionWithHistories(BASE_OPTION, props.historiesHistory[0]) : BASE_OPTION
   });
 
   function next() {
     let curState = state;
     let nextIdx = curState.idx + 1;
-    let newOption = updateOptionWithHistories(BASE_OPTION, props.historyHistories[nextIdx])
+    let newOption = updateOptionWithHistories(BASE_OPTION, props.historiesHistory[nextIdx])
     setState({
       idx: nextIdx,
       option: newOption,
