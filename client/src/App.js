@@ -219,10 +219,10 @@ function buildHistoriesHistory(histories) {
       // stupid trick to iterate list backwards to not break indices when deleting elements during iteration
       for (var i = kvs.length - 1; i >= 0; i--) {
         let v = kvs[i]
-        if (v.TxTimeEnd !== null && Date.parse(v.TxTimeEnd) == latestTxTime) {
+        if (v.TxTimeEnd !== null && Date.parse(v.TxTimeEnd) === latestTxTime) {
           v.TxTimeEnd = null;
         }
-        if (v.TxTimeStart !== null && Date.parse(v.TxTimeStart) == latestTxTime) {
+        if (v.TxTimeStart !== null && Date.parse(v.TxTimeStart) === latestTxTime) {
           kvs.splice(i, 1);
         }
       }
@@ -233,7 +233,7 @@ function buildHistoriesHistory(histories) {
     for (const [, kvs] of Object.entries(prevHistories)) {
       count += kvs.length
     }
-    if (count == 0) {
+    if (count === 0) {
       break
     }
 
