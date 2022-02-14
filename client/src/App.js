@@ -90,8 +90,8 @@ function TestList(props) {
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
               {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
-              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
-              }
+              {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
+              <span><Link to={"/replays/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
             </li>
           })}
         </ul>
@@ -119,6 +119,7 @@ function testSummary(keyCount, versionCount) {
 }
 
 // Test is the component for rendering a specific test output.
+// NOTE: currently not used in favor of Replay since adding manual controls instead of timed animation.
 // props.tests: the list of all provided tests
 function Test(props) {
   let routerParams = useParams();
@@ -187,7 +188,8 @@ function Replay(props) {
       <header className="App-header">
         <div className="test">
           <h3>⏳ Replay: {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/tests/" + encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link>
+          {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
+          Key: {key}. {testSummary(keyCount, versionCount)}. {/* <Link to={"/tests/" + encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link> */}
           <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
           <Footer></Footer>
         </div>
@@ -489,7 +491,7 @@ function updateOptionWithHistories(option, histories) {
   return newOption;
 }
 
-// ChartReplay is a varition of Chart that is responsive and replays a history-history for a database.
+// ChartReplay is a variation of Chart that is responsive and replays a history-history for a database.
 // props.historiesHistory to render.
 function ChartReplay(props) {
   const maxIdx = props.historiesHistory.length - 1;
