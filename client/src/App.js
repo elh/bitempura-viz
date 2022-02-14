@@ -511,7 +511,7 @@ function ChartReplay(props) {
   }
 
   return (
-    <div className="chart" >
+    <div>
       <div className="replay-controls">
         <span>Replay Controls: </span>
         <span>
@@ -519,7 +519,9 @@ function ChartReplay(props) {
           {state.idx < maxIdx ? <span className="replay-button" onClick={() => handleClick(1)}>▶️</span> : <span className="replay-button-placeholder">▶️</span>}
         </span>
       </div>
-      <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
+      <div className="chart" >
+        <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
+      </div>
     </div>
   );
 }
