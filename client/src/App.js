@@ -457,7 +457,7 @@ function updateOptionWithHistories(option, histories) {
       return {
         value: value,
         itemStyle: {
-          color: stringToColour(valueStr)
+          color: toColor(valueStr)
         }
       }
     });
@@ -566,19 +566,21 @@ function NoMatch() {
   );
 }
 
-// this hashes a value to generate a color for differeniation in the chart.
-var stringToColour = function (str) {
-  str += "foobar" // pad strings so hash produces wider range. this is very jank.
+// returns a css hsl string for this app. using fixed saturation and lightness, just vary hue by hashing the string value.
+function toColor(v) {
+  v = v + "foo" // random seed that made me like the test colors more...
+  return `hsl(${Math.abs(hash(v)) % 360}, 100%, 65%)`
+}
+
+// hash returns a 32 bit integer hash of a string.
+function hash(str) {
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      var char = str.charCodeAt(i);
+      hash = ((hash<<5)-hash)+char;
+      hash = hash & hash; // Convert to 32bit integer
   }
-  var colour = '#';
-  for (i = 0; i < 3; i++) {
-    var value = (hash >> (i * 8)) & 0xFF;
-    colour += ('00' + value.toString(16)).substr(-2);
-  }
-  return colour;
+  return hash;
 }
 
 export default App;
