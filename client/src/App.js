@@ -90,8 +90,8 @@ function TestList(props) {
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
               {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
-              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
-              }
+              {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
+              <span><Link to={"/replays/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
             </li>
           })}
         </ul>
@@ -119,6 +119,7 @@ function testSummary(keyCount, versionCount) {
 }
 
 // Test is the component for rendering a specific test output.
+// NOTE: currently not used in favor of Replay since adding manual controls instead of timed animation.
 // props.tests: the list of all provided tests
 function Test(props) {
   let routerParams = useParams();
@@ -147,7 +148,7 @@ function Test(props) {
       <header className="App-header">
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/replays/"+encodedTestName}>⏳ Replay it</Link>
+          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/replays/" + encodedTestName}>⏳ Replay it</Link>
           <Chart histories={test.Histories}></Chart>
           <Footer></Footer>
         </div>
@@ -187,7 +188,8 @@ function Replay(props) {
       <header className="App-header">
         <div className="test">
           <h3>⏳ Replay: {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/tests/"+encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link>
+          {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
+          Key: {key}. {testSummary(keyCount, versionCount)}. {/* <Link to={"/tests/" + encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link> */}
           <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
           <Footer></Footer>
         </div>
@@ -250,14 +252,12 @@ function getLatestNonNullTxTime(histories) {
     for (const v of kvs) {
       if (v.TxTimeStart !== null) {
         let t = Date.parse(v.TxTimeStart)
-        console.log(t)
         if (latest == null || t > latest) {
           latest = t
         }
       }
       if (v.TxTimeEnd !== null) {
         let t = Date.parse(v.TxTimeEnd)
-        console.log(t)
         if (latest == null || t > latest) {
           latest = t
         }
@@ -271,6 +271,9 @@ function getLatestNonNullTxTime(histories) {
 // Chart components will set xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
 // NOTE: right now, this only ever renders the first key. this assumes there is always only 1 "series"
 const BASE_OPTION = {
+  grid: {
+    top: "20px", // we do not use titles. make this shorter than default 60px
+  },
   tooltip: {
     show: true,
     axisPointer: {
@@ -488,38 +491,34 @@ function updateOptionWithHistories(option, histories) {
   return newOption;
 }
 
-// ChartReplay is a varition of Chart that is responsive and replays a history-history for a database.
+// ChartReplay is a variation of Chart that is responsive and replays a history-history for a database.
 // props.historiesHistory to render.
 function ChartReplay(props) {
-  const maxIdx = props.historiesHistory.length;
-
+  const maxIdx = props.historiesHistory.length - 1;
   const [state, setState] = useState({
-    idx: 0,
-    option: props.historiesHistory.length > 0 ? updateOptionWithHistories(BASE_OPTION, props.historiesHistory[0]) : BASE_OPTION
+    idx: maxIdx,
+    option: props.historiesHistory.length > 0 ? updateOptionWithHistories(BASE_OPTION, props.historiesHistory[maxIdx]) : BASE_OPTION
   });
 
-  function next() {
+  // dir is -1 for left (back one), +1 for right (forward one)
+  function handleClick(dir) {
+    console.log('Right');
     let curState = state;
-    let nextIdx = curState.idx + 1;
-    let newOption = updateOptionWithHistories(BASE_OPTION, props.historiesHistory[nextIdx])
     setState({
-      idx: nextIdx,
-      option: newOption,
+      idx: curState.idx + dir,
+      option: updateOptionWithHistories(BASE_OPTION, props.historiesHistory[curState.idx + dir]),
     });
   }
 
-  useEffect(() => {
-    if (state.idx + 1 >= maxIdx) {
-      return
-    }
-    const timer = setInterval(() => {
-      next();
-    }, 1500);
-    return () => clearInterval(timer);
-  });
-
   return (
     <div className="chart" >
+      <div className="replay-controls">
+        <span>Replay Controls: </span>
+        <span>
+          {state.idx > 0 ? <span className="replay-button" onClick={() => handleClick(-1)}>◀️</span> : <span className="replay-button-placeholder">◀️</span>}
+          {state.idx < maxIdx ? <span className="replay-button" onClick={() => handleClick(1)}>▶️</span> : <span className="replay-button-placeholder">▶️</span>}
+        </span>
+      </div>
       <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
@@ -576,9 +575,9 @@ function toColor(v) {
 function hash(str) {
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
-      var char = str.charCodeAt(i);
-      hash = ((hash<<5)-hash)+char;
-      hash = hash & hash; // Convert to 32bit integer
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
   }
   return hash;
 }
