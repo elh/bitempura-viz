@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,19 +10,25 @@ import {
 import ReactECharts from 'echarts-for-react';
 import cloneDeep from 'lodash.clonedeep';
 import './App.css';
+// import './wasm/wasm_exec.js';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 // App is the root component which handles multiple url routes and pages.
 class App extends Component {
   state = {
-    test_outputs: null
+    test_outputs: null,
+    wasm: null
   };
 
   componentDidMount() {
     this.fetchTestOutputs()
       .then(res => this.setState({ test_outputs: res }))
       .catch(err => console.log(err));
+    
+    this.loadWasm();
+
+    this.streamWasm();
   }
 
   fetchTestOutputs = async () => {
@@ -35,7 +41,27 @@ class App extends Component {
     return body;
   };
 
+  streamWasm = async () => {
+    const { instance } = await WebAssembly.instantiateStreaming(fetch("./wasm/main.wasm"));
+    this.setState({ instance });
+  }
+
+  loadWasm = async () => {
+    try {
+      const wasm = await import("./wasm/main.wasm");
+      this.setState({ wasm });
+    } catch (err) {
+      console.error(`Unexpected error in loadWasm. [Message: ${err.message}]`);
+    }
+  };
+
   render() {
+    console.log(this.state);
+    // if (!!this.state.wasm) {
+    //   this.state.wasm.bt_Get();
+    // }
+
+
     return (
       <Router>
         <div>
