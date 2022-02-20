@@ -502,7 +502,6 @@ function ChartReplay(props) {
 
   // dir is -1 for left (back one), +1 for right (forward one)
   function handleClick(dir) {
-    console.log('Right');
     let curState = state;
     setState({
       idx: curState.idx + dir,
