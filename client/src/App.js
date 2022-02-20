@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -60,6 +60,10 @@ class App extends Component {
                 <Replay tests={this.state.test_outputs.tests || []} />
               } />
             }
+            {/* interactive mode */}
+            <Route path="/interactive">
+              <Interactive />
+            </Route>
             {/* 404 */}
             <Route path="*">
               <NoMatch />
@@ -157,7 +161,7 @@ function Test(props) {
   );
 }
 
-// Replay is a page deoming our responsive chart feature
+// Replay is a page demo-ing our responsive chart feature
 function Replay(props) {
   let routerParams = useParams();
   let encodedTestName = routerParams.test;
@@ -265,6 +269,54 @@ function getLatestNonNullTxTime(histories) {
     }
   }
   return latest
+}
+
+// Interactive is the component for creating an interactive chart powered by the in-memory Go DB compiled to Wasm.
+function Interactive() {
+  return (
+    <div className="App" >
+      <header className="App-header">
+        <div className="test">
+          <h3>Interactive Mode</h3>
+          Use the `bt_`-prefixed fns from the console to interact with a local Bitempura DB.
+          <ChartInteractive></ChartInteractive>
+          <Footer></Footer>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+// ChartInteractive is a variation of Chart component that sources the histories to render from the in-memory Go DB
+// compiled to Wasm.
+function ChartInteractive() {
+  const [state, setState] = useState({
+    option: BASE_OPTION
+  });
+
+  // TODO: replace this hacky manual refresh with a new callback offered by memory/wasm db
+  function handleClick() {
+    let key = "a"; // TODO: do not hardcode? get the updated keys from the callback?
+    let h = window.bt_History(key);
+    if (!h) {
+      return
+    }
+
+    setState({
+      option: updateOptionWithHistories(BASE_OPTION, {key: h}),
+    });
+  }
+
+  return (
+    <div>
+      <div className="replay-controls">
+        <span className="replay-button" onClick={() => handleClick()}>Refresh</span>
+      </div>
+      <div className="chart" >
+        <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
+      </div>
+    </div>
+  );
 }
 
 // BASE_OPTION are the common unchanging options for all our echart configs.
