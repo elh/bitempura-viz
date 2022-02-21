@@ -51,7 +51,7 @@ class App extends Component {
             {/* test page */}
             {this.state.test_outputs &&
               <Route path="/tests/:test" children={
-                <Replay tests={this.state.test_outputs.tests || []} />
+                <Test tests={this.state.test_outputs.tests || []} />
               } />
             }
             {/* interactive mode */}
@@ -117,8 +117,9 @@ function testSummary(keyCount, versionCount) {
   return str
 }
 
-// Replay is a page demo-ing our responsive chart feature
-function Replay(props) {
+// Test is the component for rendering a specific test output.
+// props.tests: the list of all provided tests
+function Test(props) {
   let routerParams = useParams();
   let encodedTestName = routerParams.test;
   let testName = decodeURIComponent(encodedTestName);
@@ -148,9 +149,8 @@ function Replay(props) {
       <header className="App-header">
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
           Key: {key}. {testSummary(keyCount, versionCount)}.
-          <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
+          <Chart historiesHistory={historiesHistory} enableReplay={true}></Chart>
           <Footer></Footer>
         </div>
       </header>
@@ -503,9 +503,12 @@ function updateOptionWithHistories(option, histories, minDeltaDurationMs = 7 * _
   return newOption;
 }
 
-// ChartReplay is a variation of Chart that is responsive and replays a history-history for a database.
-// props.historiesHistory to render.
-function ChartReplay(props) {
+// Chart is the core component that actually renders the temporal chart. It can be responsive and replays a
+// histories-history for a database.
+// NOTE: right now, this only ever renders the first key.
+// props.historiesHistory: a history of histories for a set of keys in the database.
+// props.enableReplay: if true, allow replay controls
+function Chart(props) {
   const maxIdx = props.historiesHistory.length - 1;
   const [state, setState] = useState({
     idx: maxIdx,
@@ -523,13 +526,15 @@ function ChartReplay(props) {
 
   return (
     <div>
-      <div className="replay-controls">
-        <span>Replay Controls:</span>
-        <span>
-          {state.idx > 0 ? <span className="replay-button" onClick={() => handleClick(-1)}>◀️</span> : <span className="replay-button-placeholder">◀️</span>}
-          {state.idx < maxIdx ? <span className="replay-button" onClick={() => handleClick(1)}>▶️</span> : <span className="replay-button-placeholder">▶️</span>}
-        </span>
-      </div>
+      {props.enableReplay &&
+        <div className="replay-controls">
+          <span>Replay Controls:</span>
+          <span>
+            {state.idx > 0 ? <span className="replay-button" onClick={() => handleClick(-1)}>◀️</span> : <span className="replay-button-placeholder">◀️</span>}
+            {state.idx < maxIdx ? <span className="replay-button" onClick={() => handleClick(1)}>▶️</span> : <span className="replay-button-placeholder">▶️</span>}
+          </span>
+        </div>
+      }
       <div className="chart" >
         <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
       </div>
