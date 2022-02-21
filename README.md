@@ -6,14 +6,24 @@
 
 ## Usage
 
-The primary use case is to serve as a visual debugging tool for the development of Bitempura. Bitempura tests write [TestOutput](https://pkg.go.dev/github.com/elh/bitempura/dbtest#TestOutput) files which contain the temporal history for relevant keys. This app must be provided those files at start up.
+### Debugging Tests 🧪
+
+The original use case was to serve as a visual debugging tool for the development of Bitempura. Bitempura tests write [TestOutput](https://pkg.go.dev/github.com/elh/bitempura/dbtest#TestOutput) files which contain the temporal history for relevant keys. This app must be provided those files at start up.
 
 <p align="center">
-    <img width="80%" alt="test list" src="https://user-images.githubusercontent.com/1035393/152917599-38ca81c0-2a30-48df-bef2-7b9c1049e967.png">
-    <img width="80%" alt="bitempura" src="https://user-images.githubusercontent.com/1035393/152917603-a2540ae5-e94d-4ea7-bda4-1f6e9dccea45.gif">
+    <img width="95%" alt="test list" src="https://user-images.githubusercontent.com/1035393/154894176-a2927e36-4b2a-41e3-82ca-88011d4a3f46.png">
+    <img width="95%" alt="bitempura" src="https://user-images.githubusercontent.com/1035393/154894531-396b2ec4-0a4c-474f-bb11-73b5cc456eb2.gif">
 </p>
 
-Interactive mode TBD. Hosted app TBD. 👀
+### Interactive Mode 🪄
+
+Using the [Bitempura in-memory DB compiled to Wasm](https://github.com/elh/bitempura/tree/main/memory/wasm), we can directly manipulate a bitempura DB and visualize it from the web!
+
+<p align="center">
+    <img width="95%" alt="bitempura" src="https://user-images.githubusercontent.com/1035393/154895514-a3327fec-c5c5-46bd-8e5e-a686cc8b21ef.gif">
+</p>
+
+Hosted app TBD. 👀
 
 ### Installation
 
