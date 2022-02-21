@@ -278,7 +278,7 @@ function Interactive() {
       <header className="App-header">
         <div className="test">
           <h3>Interactive Mode</h3>
-          Use the `bt_`-prefixed fns from the console to interact with a local Bitempura DB.
+          Use the <code>bt_</code>-prefixed fns from the console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.
           <ChartInteractive></ChartInteractive>
           <Footer></Footer>
         </div>
