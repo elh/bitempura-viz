@@ -82,7 +82,9 @@ function TestList(props) {
     <div className="test-list">
       <h1>bitempura-viz 🔮</h1>
       <div>
-        <h3>{props.test_outputs ? `test outputs (${props.test_outputs.tests.length} tests):` : "test outputs:"}</h3>
+        <h3>1. <Link to={"/interactive"}>Interactive Mode</Link></h3>
+        <br></br>
+        <h3>{props.test_outputs ? `2. Test Outputs (${props.test_outputs.tests.length} tests):` : "2. Test Outputs:"}</h3>
         {props.test_outputs && props.test_outputs.test_output_dir}
         <ul>
           {props.test_outputs && props.test_outputs.tests.map((test) => {
@@ -278,8 +280,8 @@ function Interactive() {
       <header className="App-header">
         <div className="test">
           <h3>Interactive Mode</h3>
-          Use the <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
-          Init the DB with <code>bt_Init()</code>. Use <code>bt_Init(true)</code> to init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
+          Use the globally available <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
+          Call <code>bt_Init(true)</code> to re-init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
           <ChartInteractive></ChartInteractive>
           <Footer></Footer>
         </div>
@@ -305,11 +307,15 @@ function ChartInteractive() {
     });
   }
 
+  // useEffect is only invoked once because of empty dependency array second arg
   useEffect(() => {
-    // set up the bitempura on change callback
+    // init bitempura DB and set up the on change callback
     // TODO: remove this janky sleep to make sure the .wasm has loaded before this component is mounted.
-    setTimeout(() => {window.bt_OnChange(function (key) { onChange(key) })}, 500);
-  });
+    setTimeout(() => {
+      window.bt_Init();
+      window.bt_OnChange(function (key) { onChange(key) });
+    }, 500);
+  }, []);
 
   return (
     <div className="chart" >
@@ -564,7 +570,7 @@ function ChartReplay(props) {
   return (
     <div>
       <div className="replay-controls">
-        <span>Replay Controls: </span>
+        <span>Replay Controls:</span>
         <span>
           {state.idx > 0 ? <span className="replay-button" onClick={() => handleClick(-1)}>◀️</span> : <span className="replay-button-placeholder">◀️</span>}
           {state.idx < maxIdx ? <span className="replay-button" onClick={() => handleClick(1)}>▶️</span> : <span className="replay-button-placeholder">▶️</span>}
