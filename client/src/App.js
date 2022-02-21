@@ -300,7 +300,7 @@ function ChartInteractive() {
       return
     }
     setState({
-      option: updateOptionWithHistories(BASE_OPTION, { key: h }),
+      option: updateOptionWithHistories(BASE_OPTION, { key: h }, 10 * 1000 /* 10s */),
     });
   }
 
@@ -414,8 +414,9 @@ const BASE_OPTION = {
 
 // return a new option object by updating option arg with histories. does not mutate option arg
 // Will return an option updating xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
+// minDeltaDurationMs is an optional parameter that specifies the minimum range for the chart between min and max values.
 // NOTE: right now, this only ever renders the first key.
-function updateOptionWithHistories(option, histories) {
+function updateOptionWithHistories(option, histories, minDeltaDurationMs = 7 * _MS_PER_DAY) {
   // compute these values that will inform axes min and max
   let smallestValid = Number.MAX_VALUE, largestValid = 0;
   let smallestTx = Number.MAX_VALUE, largestTx = 0;
@@ -474,8 +475,8 @@ function updateOptionWithHistories(option, histories) {
     }
 
     // default minimum delta is 1 day
-    validDelta = Math.max(largestValid - smallestValid, 7 * _MS_PER_DAY);
-    txDelta = Math.max(largestTx - smallestTx, 7 * _MS_PER_DAY);
+    validDelta = Math.max(largestValid - smallestValid, minDeltaDurationMs);
+    txDelta = Math.max(largestTx - smallestTx, minDeltaDurationMs);
   }
 
   // list of data points in the graph. the fields in order are:
