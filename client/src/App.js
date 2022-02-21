@@ -294,27 +294,22 @@ function ChartInteractive() {
     option: BASE_OPTION
   });
 
-  // TODO: replace this hacky manual refresh with a new callback offered by memory/wasm db
-  function handleClick() {
-    let key = "a"; // TODO: do not hardcode? get the updated keys from the callback?
+  function onChange(key) {
     let h = window.bt_History(key);
     if (!h) {
       return
     }
-
     setState({
-      option: updateOptionWithHistories(BASE_OPTION, {key: h}),
+      option: updateOptionWithHistories(BASE_OPTION, { key: h }),
     });
   }
 
+  // set up the bitempura on change callback
+  window.bt_OnChange(function (key) { onChange(key) })
+
   return (
-    <div>
-      <div className="replay-controls">
-        <span className="replay-button" onClick={() => handleClick()}>Refresh</span>
-      </div>
-      <div className="chart" >
-        <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
-      </div>
+    <div className="chart" >
+      <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 }

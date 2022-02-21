@@ -25,4 +25,4 @@ run-client:
 build-wasm:
 	rm -rf .bitempura
 	git clone git@github.com:elh/bitempura.git .bitempura
-	(cd .bitempura; git reset --hard 0ba6cf9; make cp-wasm-exec build-wasm; cp memory/wasm/assets/* ../client/public/)
+	(cd .bitempura; git reset --hard 54445bc; make cp-wasm-exec build-wasm; cp memory/wasm/assets/* ../client/public/)
