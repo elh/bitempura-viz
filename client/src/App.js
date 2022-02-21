@@ -51,12 +51,6 @@ class App extends Component {
             {/* test page */}
             {this.state.test_outputs &&
               <Route path="/tests/:test" children={
-                <Test tests={this.state.test_outputs.tests || []} />
-              } />
-            }
-            {/* test replay page */}
-            {this.state.test_outputs &&
-              <Route path="/replays/:test" children={
                 <Replay tests={this.state.test_outputs.tests || []} />
               } />
             }
@@ -96,8 +90,7 @@ function TestList(props) {
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
               {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
-              {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
-              <span><Link to={"/replays/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
             </li>
           })}
         </ul>
@@ -122,45 +115,6 @@ function testSummary(keyCount, versionCount) {
     str += " versions)"
   }
   return str
-}
-
-// Test is the component for rendering a specific test output.
-// NOTE: currently not used in favor of Replay since adding manual controls instead of timed animation.
-// props.tests: the list of all provided tests
-function Test(props) {
-  let routerParams = useParams();
-  let encodedTestName = routerParams.test;
-  let testName = decodeURIComponent(encodedTestName);
-
-  // react-router-dom doesn't make it easy to take just the specific test from the url route as a prop
-  let test = props.tests.find(t => t.TestName === testName)
-  if (!test) {
-    return <NoMatch />
-  }
-
-  // test context
-  let keyCount = 0, versionCount = 0;
-  for (const [, value] of Object.entries(test.Histories)) {
-    keyCount++;
-    versionCount += value.length;
-  }
-
-  // NOTE: right now, this only ever renders the first key.
-  // this is a big assumption about the behavior of Chart component. revisit if we actually support multiple keys.
-  let key = Object.keys(test.Histories).length > 0 ? Object.keys(test.Histories)[0] : "";
-
-  return (
-    <div className="App" >
-      <header className="App-header">
-        <div className="test">
-          <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}. <Link to={"/replays/" + encodedTestName}>⏳ Replay it</Link>
-          <Chart histories={test.Histories}></Chart>
-          <Footer></Footer>
-        </div>
-      </header>
-    </div>
-  );
 }
 
 // Replay is a page demo-ing our responsive chart feature
@@ -195,7 +149,7 @@ function Replay(props) {
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
           {/* NOTE: currently preferring using Replay instead of Test since adding manual controls */}
-          Key: {key}. {testSummary(keyCount, versionCount)}. {/* <Link to={"/tests/" + encodedTestName}>{test.Passed ? "✅ " : "❌ "} Back to test</Link> */}
+          Key: {key}. {testSummary(keyCount, versionCount)}.
           <ChartReplay historiesHistory={historiesHistory}></ChartReplay>
           <Footer></Footer>
         </div>
@@ -579,18 +533,6 @@ function ChartReplay(props) {
       <div className="chart" >
         <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
       </div>
-    </div>
-  );
-}
-
-// Chart is the core component that actually renders the temporal chart.
-// props.histories: list of VersionedKV for a single key
-// NOTE: right now, this only ever renders the first key.
-function Chart(props) {
-  let option = updateOptionWithHistories(BASE_OPTION, props.histories);
-  return (
-    <div className="chart" >
-      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 }
