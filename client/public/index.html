@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="bitempura-viz 🔮"
     />
     <!-- <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" /> -->
     <!--
@@ -25,6 +25,31 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>bitempura-viz 🔮</title>
+    <!--
+      Load memory/wasm Bitempura db directly to client through html loading.
+      This circumvents the need to adjust webpack config and investigate poorly
+      documented methods for loading Wasm (especially Go Wasm) files through
+      React proper. Fns can be accessed through global `window`. 🤷
+    -->
+    <script src="./wasm_exec.js"></script>
+    <script>
+        // polyfill
+        if (!WebAssembly.instantiateStreaming) {
+          WebAssembly.instantiateStreaming = async (resp, importObject) => {
+            const source = await (await resp).arrayBuffer();
+            return await WebAssembly.instantiate(source, importObject);
+          };
+        }
+
+        const go = new Go();
+        (async() => {
+          await WebAssembly
+            .instantiateStreaming(fetch("./main.wasm"), go.importObject)
+            .then((result) => {
+                go.run(result.instance);
+            });
+        })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -60,6 +60,10 @@ class App extends Component {
                 <Replay tests={this.state.test_outputs.tests || []} />
               } />
             }
+            {/* interactive mode */}
+            <Route path="/interactive">
+              <Interactive />
+            </Route>
             {/* 404 */}
             <Route path="*">
               <NoMatch />
@@ -157,7 +161,7 @@ function Test(props) {
   );
 }
 
-// Replay is a page deoming our responsive chart feature
+// Replay is a page demo-ing our responsive chart feature
 function Replay(props) {
   let routerParams = useParams();
   let encodedTestName = routerParams.test;
@@ -267,6 +271,53 @@ function getLatestNonNullTxTime(histories) {
   return latest
 }
 
+// Interactive is the component for creating an interactive chart powered by the in-memory Go DB compiled to Wasm.
+function Interactive() {
+  return (
+    <div className="App" >
+      <header className="App-header">
+        <div className="test">
+          <h3>Interactive Mode</h3>
+          Use the <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
+          Init the DB with <code>bt_Init()</code>. Use <code>bt_Init(true)</code> to init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
+          <ChartInteractive></ChartInteractive>
+          <Footer></Footer>
+        </div>
+      </header>
+    </div>
+  );
+}
+
+// ChartInteractive is a variation of Chart component that sources the histories to render from the in-memory Go DB
+// compiled to Wasm.
+function ChartInteractive() {
+  const [state, setState] = useState({
+    option: BASE_OPTION
+  });
+
+  function onChange(key) {
+    let h = window.bt_History(key);
+    if (!h) {
+      return
+    }
+    setState({
+      option: updateOptionWithHistories(BASE_OPTION, { key: h }, 10 * 1000 /* 10s */),
+    });
+  }
+
+  useEffect(() => {
+    // set up the bitempura on change callback
+    // TODO: remove this janky sleep to make sure the .wasm has loaded before this component is mounted.
+    setTimeout(() => {window.bt_OnChange(function (key) { onChange(key) })}, 500);
+  });
+
+  return (
+    <div className="chart" >
+      <ReactECharts option={state.option} style={{ height: '100%', width: '100%' }} />
+    </div>
+  );
+}
+
 // BASE_OPTION are the common unchanging options for all our echart configs.
 // Chart components will set xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
 // NOTE: right now, this only ever renders the first key. this assumes there is always only 1 "series"
@@ -367,8 +418,9 @@ const BASE_OPTION = {
 
 // return a new option object by updating option arg with histories. does not mutate option arg
 // Will return an option updating xAxis.min, xAxis.max, yAxis.min, yAxis.max, and series.data.
+// minDeltaDurationMs is an optional parameter that specifies the minimum range for the chart between min and max values.
 // NOTE: right now, this only ever renders the first key.
-function updateOptionWithHistories(option, histories) {
+function updateOptionWithHistories(option, histories, minDeltaDurationMs = 7 * _MS_PER_DAY) {
   // compute these values that will inform axes min and max
   let smallestValid = Number.MAX_VALUE, largestValid = 0;
   let smallestTx = Number.MAX_VALUE, largestTx = 0;
@@ -427,8 +479,8 @@ function updateOptionWithHistories(option, histories) {
     }
 
     // default minimum delta is 1 day
-    validDelta = Math.max(largestValid - smallestValid, 7 * _MS_PER_DAY);
-    txDelta = Math.max(largestTx - smallestTx, 7 * _MS_PER_DAY);
+    validDelta = Math.max(largestValid - smallestValid, minDeltaDurationMs);
+    txDelta = Math.max(largestTx - smallestTx, minDeltaDurationMs);
   }
 
   // list of data points in the graph. the fields in order are:
@@ -502,7 +554,6 @@ function ChartReplay(props) {
 
   // dir is -1 for left (back one), +1 for right (forward one)
   function handleClick(dir) {
-    console.log('Right');
     let curState = state;
     setState({
       idx: curState.idx + dir,

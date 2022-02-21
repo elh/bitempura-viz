@@ -6,3 +6,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+code {
+  margin: 0;
+  padding: 0.2em 0.4em;
+  font-family: "Courier New";
+  font-size: 90%;
+  font-weight: bold;
+  background: #e8eeff;
+  border-radius: 4px;
+}
