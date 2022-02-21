@@ -8,9 +8,11 @@ body {
 }
 
 code {
-  padding: 0.2em 0.4em;
   margin: 0;
-  font-size: 95%;
+  padding: 0.2em 0.4em;
+  font-family: "Courier New";
+  font-size: 90%;
+  font-weight: bold;
   background: #e8eeff;
   border-radius: 4px;
 }

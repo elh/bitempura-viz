@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -278,7 +278,8 @@ function Interactive() {
       <header className="App-header">
         <div className="test">
           <h3>Interactive Mode</h3>
-          Use the <code>bt_</code>-prefixed fns from the console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.
+          Use the <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
+          Init the DB with <code>bt_Init()</code>. Use <code>bt_Init(true)</code> to init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
           <ChartInteractive></ChartInteractive>
           <Footer></Footer>
         </div>
@@ -304,8 +305,11 @@ function ChartInteractive() {
     });
   }
 
-  // set up the bitempura on change callback
-  window.bt_OnChange(function (key) { onChange(key) })
+  useEffect(() => {
+    // set up the bitempura on change callback
+    // TODO: remove this janky sleep to make sure the .wasm has loaded before this component is mounted.
+    setTimeout(() => {window.bt_OnChange(function (key) { onChange(key) })}, 500);
+  });
 
   return (
     <div className="chart" >
