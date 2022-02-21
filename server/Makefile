@@ -8,11 +8,11 @@ error:
 install:
 	(cd server && npm ci) && (cd client && npm ci)
 
-# run server with TEST_OUTPUT_DIRS env var as csv of paths to Bitempura `_testoutput/` dirs
+# run server with TEST_OUTPUT_DIRS env var as paths to Bitempura `_testoutput/` dirs
 run-server:
 	(cd server; node server.js)
 
-# run server with live reloading with TEST_OUTPUT_DIRS env var as csv of paths to Bitempura `_testoutput/` dirs
+# run server with live reloading with TEST_OUTPUT_DIRS env var as path to Bitempura `_testoutput/` dir
 run-server-nodemon:
 	(cd server; npx nodemon server.js)
 

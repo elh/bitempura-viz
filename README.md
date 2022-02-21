@@ -35,7 +35,7 @@ make install
 
 Bitempura-viz has a simple client-server set up. The server makes temporal histories available for the client to render.
 
-1. Start the Express server w/ `TEST_OUTPUT_DIR` env var set to a path to a Bitempura `_testoutput/` dir to visualize.
+1. Start the Express server w/ `TEST_OUTPUT_DIRS` env var set to csv of paths to Bitempura `_testoutput/` dirs to visualize.
 ```
 make run-server
 # or `make run-server-nodemon`
