@@ -34,7 +34,7 @@
       documented methods for loading Wasm (especially Go Wasm) files through
       React proper. Fns can be accessed through global `window`. 🤷
     -->
-    <script src="./bitempura-viz/wasm_exec.js"></script>
+    <script src="%PUBLIC_URL%/wasm_exec.js"></script>
     <script>
         // polyfill
         if (!WebAssembly.instantiateStreaming) {
@@ -47,7 +47,7 @@
         const go = new Go();
         (async() => {
           await WebAssembly
-            .instantiateStreaming(fetch("./bitempura-viz/main.wasm"), go.importObject)
+            .instantiateStreaming(fetch("%PUBLIC_URL%/main.wasm"), go.importObject)
             .then((result) => {
                 go.run(result.instance);
             });

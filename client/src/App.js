@@ -30,7 +30,7 @@ class App extends Component {
     // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file _fixtures/test_output.json
     let response = null;
     if (process.env.REACT_APP_USE_FIXTURES && process.env.REACT_APP_USE_FIXTURES === "true" ) {
-      response = await fetch('bitempura-viz/_fixtures/test_output.json');
+      response = await fetch(process.env.PUBLIC_URL + '/_fixtures/test_output.json');
     } else {
       response = await fetch('/test_output');
     }
@@ -91,10 +91,11 @@ Temporal databases model time as a core aspect of storing and querying data. A b
 
 &nbsp;  
 &nbsp;  
-See an example: [TestRobinhoodExample](/bitempura-viz/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
+See an example: [TestRobinhoodExample](%PUBLIC_URL%/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
 &nbsp;  
 See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](https:/github.com/elh/bitempura) for more.
-`
+`.replace(/%PUBLIC_URL%/g, process.env.PUBLIC_URL);
+
   return (
     <div className="test-list">
       <h1>bitempura-viz 🔮</h1>
