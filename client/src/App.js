@@ -111,7 +111,7 @@ Temporal databases model time as a core aspect of storing and querying data. A b
       <h1>bitempura-viz 🔮</h1>
       <ReactMarkdown children={intro}></ReactMarkdown>
       <div>👉 <mark>See an example: <a href={process.env.PUBLIC_URL + "/#/tests/TestRobinhoodExample"}>TestRobinhoodExample</a></mark> (<a href="https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go">code↗</a>)</div>
-      <div>🔗 See <a href={"https:/github.com/elh/bitempura-viz"}>bitempura-viz↗</a> and <a href={"https:/github.com/elh/bitempura"}>bitempura↗</a></div>
+      <div>🔗 See <a href={"https://github.com/elh/bitempura-viz"}>bitempura-viz↗</a> and <a href={"https://github.com/elh/bitempura"}>bitempura↗</a></div>
       <div className="divider"/>
       <div>
         <h3>1. <Link to={"/interactive"}>Interactive Mode</Link></h3>
@@ -598,8 +598,8 @@ function Footer(props) {
     <div>
       <p>
         {!props.hide_all_tests_link && <span>🔙 <Link to="/">Home</Link><br></br></span>}
-        🔗 <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a><br></br>
-        🔗 <a href="https:/github.com/elh/bitempura">bitempura</a>
+        🔗 <a href="https://github.com/elh/bitempura-viz">bitempura-viz</a><br></br>
+        🔗 <a href="https://github.com/elh/bitempura">bitempura</a>
       </p>
     </div>
   )
