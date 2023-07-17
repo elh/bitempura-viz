@@ -41,3 +41,10 @@
 .replay-button:hover {
   cursor: pointer;
 }
+
+.divider {
+  width: "screen";
+  max-width: 90%;
+  margin: 50px auto;
+  border-top: #191919 1px solid;
+}
