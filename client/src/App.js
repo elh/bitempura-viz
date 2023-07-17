@@ -104,15 +104,14 @@ Temporal databases model time as a core aspect of storing and querying data. A b
 
 &nbsp;  
 &nbsp;  
-See an example: [TestRobinhoodExample](%PUBLIC_URL%/#/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
-&nbsp;  
-See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](https:/github.com/elh/bitempura) for more.
-`.replace(/%PUBLIC_URL%/g, process.env.PUBLIC_URL);
+`;
 
   return (
     <div className="test-list">
       <h1>bitempura-viz 🔮</h1>
       <ReactMarkdown children={intro}></ReactMarkdown>
+      <div>👉 <mark>See an example: <a href={process.env.PUBLIC_URL + "/#/tests/TestRobinhoodExample"}>TestRobinhoodExample</a></mark> (<a href="https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go">code↗</a>)</div>
+      <div>🔗 See <a href={"https:/github.com/elh/bitempura-viz"}>bitempura-viz↗</a> and <a href={"https:/github.com/elh/bitempura"}>bitempura↗</a></div>
       <div className="divider"/>
       <div>
         <h3>1. <Link to={"/interactive"}>Interactive Mode</Link></h3>
@@ -131,8 +130,9 @@ See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](h
             }
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
-              {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
-              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              {test.TestName === "TestRobinhoodExample"
+                ? <mark><span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span></mark>
+                : <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>}
             </li>
           })}
         </ul>
