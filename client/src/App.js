@@ -8,6 +8,7 @@ import {
   useParams
 } from "react-router-dom";
 import ReactECharts from 'echarts-for-react';
+import ReactMarkdown from 'react-markdown'
 import cloneDeep from 'lodash.clonedeep';
 import './App.css';
 
@@ -149,8 +150,11 @@ function Test(props) {
       <header className="App-header">
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          <div>{test.Description}</div>
-          <h3></h3> {/* lazy spacer... */}
+          { test.Description &&
+            <div>
+              <ReactMarkdown children={test.Description} />
+              <div className="divider"/>
+              </div>}
           <div>Key: {key}. {testSummary(keyCount, versionCount)}.</div>
           <Chart historiesHistory={historiesHistory} enableReplay={true}></Chart>
           <Footer></Footer>
