@@ -73,13 +73,33 @@ class App extends Component {
 // TestList is the component for rendering the list of all provided tests.
 // props.test_outputs: API response w/ all provided tests and the name of the test dir
 function TestList(props) {
+  const intro = `
+**Bitempura-viz visualizes the 2D valid time and transaction time history in a [simple bitemporal kv database↗](https://github.com/elh/bitempura).**
+
+[Bitemporality↗](https://github.com/elh/bitempura#bitemporality) provides attractive data integrity and querying properties, but actually implementing and reasoning about it can be quite confusing. The nifty convention of visualizing the underlying records in a 2D chart was established as early as Richard T. Snodgrass's writings, but in the course of researching temporal databases, I found it to be underutilized. I created this tool to make these charts a first class artifact for building and sharing Bitempura.
+
+Temporal databases model time as a core aspect of storing and querying data. A bitemporal database is one that supports these orthogonal axes.
+* **Valid time**: When the fact was *true* in the real world. This is the *application domain's* notion of time.
+* **Transaction time**: When the fact was *recorded* in the database. This is the *system's* notion of time.
+
+&nbsp;  
+&nbsp;  
+See an example: [TestRobinhoodExample](/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
+&nbsp;  
+See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](https:/github.com/elh/bitempura) for more.
+`
   return (
     <div className="test-list">
       <h1>bitempura-viz 🔮</h1>
+      <ReactMarkdown children={intro}></ReactMarkdown>
+      <div className="divider"/>
       <div>
         <h3>1. <Link to={"/interactive"}>Interactive Mode</Link></h3>
+        <div>A janky live demo powered by a WASM-compiled bitemporal key-value db. TODO: interact with it via a powerbar</div>
         <br></br>
         <h3>{props.test_outputs ? `2. Test Outputs (${props.test_outputs.tests.length} tests):` : "2. Test Outputs:"}</h3>
+        2D visualizations of bitempura test cases
+        <br/><br/>
         {props.test_outputs && props.test_outputs.test_output_dir}
         <ul>
           {props.test_outputs && props.test_outputs.tests.map((test) => {
@@ -240,6 +260,8 @@ function Interactive() {
       <header className="App-header">
         <div className="test">
           <h3>Interactive Mode</h3>
+          <div>A janky live demo powered by a WASM-compiled bitemporal key-value db. TODO: interact with it via a powerbar</div>
+          <h2/>
           Use the globally available <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
           Call <code>bt_Init(true)</code> to re-init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
           <ChartInteractive></ChartInteractive>
@@ -554,7 +576,7 @@ function Footer(props) {
   return (
     <div>
       <p>
-        {!props.hide_all_tests_link && <span>🔙 <Link to="/">All Tests</Link><br></br></span>}
+        {!props.hide_all_tests_link && <span>🔙 <Link to="/">Home</Link><br></br></span>}
         🔗 <a href="https:/github.com/elh/bitempura-viz">bitempura-viz</a><br></br>
         🔗 <a href="https:/github.com/elh/bitempura">bitempura</a>
       </p>
