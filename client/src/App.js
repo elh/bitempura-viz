@@ -27,10 +27,11 @@ class App extends Component {
   }
 
   fetchTestOutputs = async () => {
-    // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file _fixtures/test_output.json
+    // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file fixtures/test_output.json
+    // NOTE: default github pages deployment will ignore "_"-prefixed files! I am not adding .nojekyll because I want to keep the automated gh-pages deploy
     let response = null;
     if (process.env.REACT_APP_USE_FIXTURES && process.env.REACT_APP_USE_FIXTURES === "true" ) {
-      response = await fetch(process.env.PUBLIC_URL + '/_fixtures/test_output.json');
+      response = await fetch(process.env.PUBLIC_URL + '/fixtures/test_output.json');
     } else {
       response = await fetch('/test_output');
     }
