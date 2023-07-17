@@ -14,6 +14,17 @@ import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
+// React Router v5 solution
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 // App is the root component which handles multiple url routes and pages.
 class App extends Component {
   state = {
@@ -47,6 +58,7 @@ class App extends Component {
   render() {
     return (
       <Router basename={process.env.PUBLIC_URL}>
+        <ScrollToTop />
         <div>
           <Switch>
             {/* home page */}
