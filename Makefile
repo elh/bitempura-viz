@@ -1,4 +1,4 @@
-.PHONY: error install run-server run-server-nodemon run-client build-wasm
+.PHONY: error install run-server run-server-nodemon run-client build-wasm deploy
 
 error:
 	@echo "specify make target"
@@ -26,3 +26,7 @@ build-wasm:
 	rm -rf .bitempura
 	git clone git@github.com:elh/bitempura.git .bitempura
 	(cd .bitempura; git reset --hard 54445bc; make cp-wasm-exec build-wasm; cp memory/wasm/assets/* ../client/public/)
+
+# deploy to Github Pages
+deploy:
+	(cd client; npm run deploy)
