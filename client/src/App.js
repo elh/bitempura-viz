@@ -27,7 +27,14 @@ class App extends Component {
   }
 
   fetchTestOutputs = async () => {
-    const response = await fetch('/test_output');
+    // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file _fixtures/test_output.json
+    let response = null;
+    if (process.env.REACT_APP_USE_FIXTURES && process.env.REACT_APP_USE_FIXTURES === "true" ) {
+      response = await fetch('/_fixtures/test_output.json');
+    } else {
+      response = await fetch('/test_output');
+    }
+
     const body = await response.json();
 
     if (response.status !== 200) {
