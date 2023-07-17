@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/bitempura-viz/static/css/main.ab58ae12.css",
-    "main.js": "/bitempura-viz/static/js/main.ec516f79.js",
+    "main.js": "/bitempura-viz/static/js/main.0ae55c55.js",
     "static/js/787.fb6bdac1.chunk.js": "/bitempura-viz/static/js/787.fb6bdac1.chunk.js",
     "index.html": "/bitempura-viz/index.html",
     "main.ab58ae12.css.map": "/bitempura-viz/static/css/main.ab58ae12.css.map",
-    "main.ec516f79.js.map": "/bitempura-viz/static/js/main.ec516f79.js.map",
+    "main.0ae55c55.js.map": "/bitempura-viz/static/js/main.0ae55c55.js.map",
     "787.fb6bdac1.chunk.js.map": "/bitempura-viz/static/js/787.fb6bdac1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ab58ae12.css",
-    "static/js/main.ec516f79.js"
+    "static/js/main.0ae55c55.js"
   ]
 }
