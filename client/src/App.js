@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Link,
@@ -92,7 +92,7 @@ Temporal databases model time as a core aspect of storing and querying data. A b
 
 &nbsp;  
 &nbsp;  
-See an example: [TestRobinhoodExample](%PUBLIC_URL%/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
+See an example: [TestRobinhoodExample](%PUBLIC_URL%/#/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
 &nbsp;  
 See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](https:/github.com/elh/bitempura) for more.
 `.replace(/%PUBLIC_URL%/g, process.env.PUBLIC_URL);
