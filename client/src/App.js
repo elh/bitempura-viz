@@ -149,7 +149,9 @@ function Test(props) {
       <header className="App-header">
         <div className="test">
           <h3>{test.Passed ? "✅ " : "❌ "} {testName}</h3>
-          Key: {key}. {testSummary(keyCount, versionCount)}.
+          <div>{test.Description}</div>
+          <h3></h3> {/* lazy spacer... */}
+          <div>Key: {key}. {testSummary(keyCount, versionCount)}.</div>
           <Chart historiesHistory={historiesHistory} enableReplay={true}></Chart>
           <Footer></Footer>
         </div>
