@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Link,
@@ -13,6 +13,17 @@ import cloneDeep from 'lodash.clonedeep';
 import './App.css';
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+// React Router v5 solution
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 // App is the root component which handles multiple url routes and pages.
 class App extends Component {
@@ -27,10 +38,11 @@ class App extends Component {
   }
 
   fetchTestOutputs = async () => {
-    // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file _fixtures/test_output.json
+    // if REACT_APP_USE_FIXTURES env var is set, use fixtures instead of fetching from server. response is static json file fixtures/test_output.json
+    // NOTE: default github pages deployment will ignore "_"-prefixed files! I am not adding .nojekyll because I want to keep the automated gh-pages deploy
     let response = null;
     if (process.env.REACT_APP_USE_FIXTURES && process.env.REACT_APP_USE_FIXTURES === "true" ) {
-      response = await fetch('/_fixtures/test_output.json');
+      response = await fetch(process.env.PUBLIC_URL + '/fixtures/test_output.json');
     } else {
       response = await fetch('/test_output');
     }
@@ -45,7 +57,8 @@ class App extends Component {
 
   render() {
     return (
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
+        <ScrollToTop />
         <div>
           <Switch>
             {/* home page */}
@@ -91,14 +104,14 @@ Temporal databases model time as a core aspect of storing and querying data. A b
 
 &nbsp;  
 &nbsp;  
-See an example: [TestRobinhoodExample](/tests/TestRobinhoodExample) ([code↗](https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go))
-&nbsp;  
-See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](https:/github.com/elh/bitempura) for more.
-`
+`;
+
   return (
     <div className="test-list">
       <h1>bitempura-viz 🔮</h1>
       <ReactMarkdown children={intro}></ReactMarkdown>
+      <div>👉 <mark>See an example: <a href={process.env.PUBLIC_URL + "/#/tests/TestRobinhoodExample"}>TestRobinhoodExample</a></mark> (<a href="https://github.com/elh/bitempura/blob/main/memory/db_examples_test.go">code↗</a>)</div>
+      <div>🔗 See <a href={"https:/github.com/elh/bitempura-viz"}>bitempura-viz↗</a> and <a href={"https:/github.com/elh/bitempura"}>bitempura↗</a></div>
       <div className="divider"/>
       <div>
         <h3>1. <Link to={"/interactive"}>Interactive Mode</Link></h3>
@@ -117,8 +130,9 @@ See [bitempura-viz↗](https:/github.com/elh/bitempura-viz) and [bitempura↗](h
             }
             return <li key={test.TestName}>
               {test.Passed ? "✅ " : "❌ "}
-              {test.TestName === "TestRobinhoodExample" && <span>⭐ </span>}
-              <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>
+              {test.TestName === "TestRobinhoodExample"
+                ? <mark><span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span></mark>
+                : <span><Link to={"/tests/" + encodeURIComponent(test.TestName)}>{test.TestName}</Link> {testSummary(keyCount, versionCount)}</span>}
             </li>
           })}
         </ul>

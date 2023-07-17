@@ -1,7 +1,8 @@
 {
   "name": "bitempura-viz-client",
   "version": "0.0.1",
-  "description": "",
+  "homepage": "https://elh.github.io/bitempura-viz",
+  "description": "Bitemporal database visualization",
   "private": true,
   "repository": {
     "type": "git",
@@ -28,6 +29,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "REACT_APP_USE_FIXTURES=true npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test"
@@ -50,5 +53,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:5000",
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
 }
