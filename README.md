@@ -44,6 +44,8 @@ make run-server
 2. Start the React web app. Navigate to it at `http://localhost:3000/`.
 ```
 make run-client
+# run without backend
+REACT_APP_USE_FIXTURES=true make run-client
 ````
 
 See `Makefile` for more context.
