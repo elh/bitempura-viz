@@ -282,9 +282,10 @@ function Interactive() {
         <div className="test">
           <h3>Interactive Mode</h3>
           <div>A janky live demo powered by a WASM-compiled bitemporal key-value db. TODO: interact with it via a powerbar</div>
-          <h2/>
-          Use the globally available <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br></br>
-          Call <code>bt_Init(true)</code> to re-init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
+          <p>
+            Use the globally available <code>bt_</code>-prefixed fns from the browser console to interact with a <a href="https://github.com/elh/bitempura/tree/main/memory/wasm">local Bitempura DB</a>.<br />
+            Call <code>bt_Init(true)</code> to re-init the db with a clock if you want to control tx times with <code>bt_SetNow(time)</code>.
+          </p>
           <ChartInteractive></ChartInteractive>
           <Footer></Footer>
         </div>
