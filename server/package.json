@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/elh/bitempura-viz#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "express": "^4.22.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
