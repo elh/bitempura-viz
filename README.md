@@ -27,6 +27,8 @@ Hosted app TBD. 👀
 
 ### Installation
 
+Use Node.js 22 LTS or newer. The patched build dependencies require a modern Node runtime.
+
 ```
 make install
 ````
@@ -49,6 +51,19 @@ REACT_APP_USE_FIXTURES=true make run-client
 ````
 
 See `Makefile` for more context.
+
+### Dependency verification
+
+Run `CI=true npm test --prefix client -- --watchAll=false --runInBand`,
+`npm run test:tooling --prefix client`, `npm test --prefix server`, and
+`CI=true npm run build --prefix client` before publishing dependency upgrades.
+Both packages can also be checked with `npm audit --package-lock-only`.
+
+The client retains CRA 5 but overrides its vulnerable transitive dependencies.
+`client/scripts/start.js` adapts CRA's removed dev-server hooks and HTTPS options
+for webpack-dev-server 5, keeping its Host/Origin checks ahead of application
+middleware and using its default CORS policy. SVGR and resolve-url-loader are
+upgraded at the parent level so their dependencies use patched APIs.
 
 ### Enhancements?
 
